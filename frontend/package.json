@@ -1,0 +1,53 @@
+{
+  "name": "react-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:3300",
+  "homepage": ".",
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/index.tsx",
+      "!src/registerServiceWorker.ts"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "dependencies": {
+    "@material-ui/core": "^3.9.3",
+    "@types/inline-style-prefixer": "^5.0.0",
+    "@types/react": "^16.8.14",
+    "@types/react-data-grid": "^4.0.2",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-router-dom": "^4.3.2",
+    "@types/reactable": "^0.14.6",
+    "@types/socket.io-client": "^1.4.32",
+    "inline-style-prefixer": "^5.1.0",
+    "react": "^16.8.6",
+    "react-data-grid": "^6.1.0",
+    "react-dom": "^16.8.6",
+    "react-modal-dialog": "^4.0.7",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "^3.0.0",
+    "reactable": "^1.1.0",
+    "socket.io-client": "^2.2.0",
+    "typescript": "^3.4.5",
+    "typestyle": "^2.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "postinstall": "yarn build",
+    "test": "react-scripts test --coverage",
+    "test:watch": "react-scripts test --coverage --watchAll"
+  }
+}

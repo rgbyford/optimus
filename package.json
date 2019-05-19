@@ -1,0 +1,37 @@
+{
+  "name": "create-mern-ts-app",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "10.x",
+    "yarn": "1.x"
+  },
+  "scripts": {
+    "install": "yarn install:backend && yarn install:frontend",
+    "install:backend": "cd backend && yarn install",
+    "install:frontend": "cd frontend && yarn install",
+    "build": "yarn build:backend && yarn build:frontend",
+    "build:backend": "cd backend && yarn build",
+    "build:frontend": "cd frontend && yarn build",
+    "start": "concurrently \"yarn start:backend\" \"yarn start:frontend\"",
+    "start:db": "sudo mongod --dbpath /data/test/ --port 27017",
+    "start:backend": "cd backend && yarn start",
+    "start:frontend": "cd frontend && yarn start",
+    "test": "yarn test:backend && yarn test:frontend",
+    "test:backend": "cd backend && yarn test",
+    "test:frontend": "cd frontend && yarn test",
+    "serve": "cd backend && node build/server.js"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "concurrently": "^4.0.1",
+    "source-map-loader": "^0.2.4",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1"
+  },
+  "dependencies": {
+    "react-scripts": "^3.0.0",
+    "serve-static": "^1.13.2",
+    "typescript": "^3.4.4"
+  }
+}
