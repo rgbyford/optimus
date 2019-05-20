@@ -1,6 +1,12 @@
 const connFns = require("./connection");
+const serverFns = require ('../server');
+
 //export module db {
 let iBadOnes = 0;
+let iRows = 0;
+let aoContacts: any[] = [];      // could have "any" properties, since read from vcf
+//let iSavedCount;
+
 
 let aasTagsMain: string[][] = [
     ['1', '1'],
@@ -127,7 +133,7 @@ module.exports.readCatsFile = function () {
     openCatsFile("a+");
     console.log ("readCatsFile: ", fdCats);
     const sCats = fsDB.readFileSync(fdCats, "utf8");
-    console.log ("sCats");
+//    console.log ("sCats");
     if (sCats.length) {
         aoCatsRead = JSON.parse(sCats);
     } else {
@@ -234,9 +240,8 @@ function buildCategories(asTag: string[]) {
     }
 }
 
-let iRows = 0;
-let aoContacts: any[];      // could have "any" properties, since read from vcf
-//let iSavedCount;
+let iTotalRows: number;
+let iPercent: number = 0;
 
 module.exports.importNames = function (iCount: number = 0) {
 //export function importNames (iCount: number = 0) {
@@ -244,8 +249,12 @@ module.exports.importNames = function (iCount: number = 0) {
 //    if (iCount) {
 //        iSavedCount = iCount;
 //    }
+    if (iCount > 0) {       // first call - others are recursive
+        iTotalRows = iCount;
+        iPercent = 0;
+    }
     if (aoContacts.length === 0) { // done
-        console.log(`Import names done - ${iRows} rows`);
+        console.log(`Import names done - ${iTotalRows} rows`);
         //        document.body.style.cursor  = 'default';
         return;
     }
@@ -314,7 +323,14 @@ module.exports.importNames = function (iCount: number = 0) {
     aoContacts.shift(); // remove the one used
 //    console.log ("aoC length: ", aoContacts.length);
     connFns.insertContact(oContact, aoContacts.length === 0); // iCount 0 except for first call
-    iRows++;
+    //iRows++;
+    if (iRows++ > iTotalRows / 50) {
+        // show progress every 2%
+        iPercent += 2;
+        //console.log ('Progress: ', iPercent);
+        serverFns.sendProgress (iPercent.toString ());
+        iRows = 0;
+    }
     return;
 }
 //}

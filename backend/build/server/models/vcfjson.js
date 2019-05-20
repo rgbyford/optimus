@@ -14,7 +14,7 @@ module.exports.vcfJson = function (file) {
     let asLines = [];
     let i;
     let iCards = 0;
-    console.log("vcfJson");
+    console.log("vcfJson: ", file);
     dbContent.clearContacts('VCF');
     dbContent.readCatsFile();
     let fd = fsV.openSync("./uploads/" + file, 'r+');

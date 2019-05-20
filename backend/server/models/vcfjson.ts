@@ -26,7 +26,7 @@ module.exports.vcfJson = function (file: string) {
     let i: number;
     let iCards: number = 0;
 
-    console.log("vcfJson");
+    console.log("vcfJson: ", file);
     dbContent.clearContacts('VCF');
     dbContent.readCatsFile(); // read in existing categories
     // When the file is a local file we need to convert to a file Obj.
@@ -127,7 +127,7 @@ module.exports.vcfJson = function (file: string) {
                 iTitles = 1;
                 iURLs = 1;
                 iAdrs = 1;
-             dbContent.pushContact(oContact);
+                dbContent.pushContact(oContact);
                 oContact = {};
                 iCards++;
                 break;
@@ -136,7 +136,7 @@ module.exports.vcfJson = function (file: string) {
         }
     }
     console.log ("vcfJson complete, ", iCards, " names");
- dbContent.importNames(iCards);
+    dbContent.importNames(iCards);
     fsV.closeSync (fd);
     fsV.unlinkSync('./uploads/' + file);
 };

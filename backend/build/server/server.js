@@ -14,11 +14,9 @@ const ROOT_URL = dev ? `http://localhost:${port}` : `http://localhost:${port}`;
 app.use(cors());
 app.use(express.json());
 const frontend = __dirname.replace("back", "front");
-console.log("pathxxx: ", path.join(frontend));
-app.use(express.static(path.join(frontend)));
 app.use(routes);
 app.get('*', function (req, res, next) {
-    console.log("app.get", path.join(frontend, req.params[0]));
+    console.log("app.get", path.join(__dirname, req.params[0]));
     res.sendFile(req.params[0], { root: frontend });
     console.log("contacts sendFile done: ", path.join(frontend, req.params[0]));
 });

@@ -17,9 +17,12 @@ var multer = require("multer");
 var uploadMulter = multer({
     dest: "./uploads/"
 });
-router.put("/contacts/import", uploadMulter.single("avatar"), function (req) {
+router.put("/contacts/import", uploadMulter.single("avatar"), function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         dbFunctions.writeDateFile();
+        console.log("/contacts/import req.body: ", req.body);
+        console.log("req.file: ", req.file);
+        console.log('req.file.path: ', req.file.path);
         if (req.body.clearDB === 'true') {
             yield dbConn.clearDB();
         }

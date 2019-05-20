@@ -3,7 +3,7 @@ import 'isomorphic-fetch';
 const dev = true;
 //const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3300;
-const ROOT_URL = dev ? `http://localhost:${port}` : 'http://tobycontacts.ddns.net/cnext';
+const ROOT_URL = dev ? `http://localhost:${port}` : 'http://tobycontacts.ddns.net/mern-ts';
 //const ROOT_URL = '';
 console.log (`NODE_ENV: ${process.env.NODE_ENV} dev: ${dev}`);
 

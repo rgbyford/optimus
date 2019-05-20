@@ -1,8 +1,10 @@
-import React from 'react';
-import socketIOClient from 'socket.io-client';
-import {Table, Thead, Th, Tr,Td} from 'reactable';
+import React, {createRef} from 'react';
+//import socketIOClient from 'socket.io-client';
+import io from 'socket.io-client';
+//import {Table, Thead, Th, Tr,Td} from 'reactable';
 import { getLoadDate } from './public';
 import Header from './components/Header';
+import ReactDataGrid from 'react-data-grid';
 
 let aoCats: {} = [];
 let timerId: number;
@@ -17,27 +19,48 @@ type OMod = {
 export function getCats () {
   return (aoCats);
 }
+const columns = [
+  { key: 'GivenName', name: 'GivenName' },
+  { key: 'FamilyName', name: 'FamilyName'}
+];
+
 /*
 interface Props {
   tableData: OMod[];
 }
 */
-function MyTable (tableData: {GivenName: string, FamilyName: string} []) {
+
+function DupsTable (tableData: { GivenName: string, FamilyName: string }[]) {
+    //console.log("Hello World");
+    return (<ReactDataGrid
+      minWidth = {500}
+      columns={columns}
+      rowGetter={i => tableData[i]}
+      rowsCount={tableData.length}
+      enableCellSelect={false}
+      minHeight={420} />);
+  }
+  
+//function MyTable (tableData: {GivenName: string, FamilyName: string} []) {
 //class MyTable extends React.Component<{tableData: OMod[]}> {
 //  render() {
-    return (<Table className = "table">
-           <Thead>
-          <Th column="firstName">
-            <strong className="name-header">First Name</strong>
-          </Th>
-          <Th column="lastName">
-            <strong className="name-header">Last Name</strong>
-          </Th>
-        </Thead>
-        {tableData.map(x=><Tr> <Td column="firstName">{x.GivenName}</Td> <Td column="lastName">{x.FamilyName}</Td></Tr>)}
-      </Table>
-    );
-  }
+//  console.log ('MyTable length', tableData.length);
+//  console.log ('First name: ', tableData[0].GivenName, ' ', tableData[0].FamilyName);
+//    return (
+
+      // <Table className = "table">
+    //        <Thead>
+    //       <Th column="firstName">
+    //         <strong className="name-header">First Name</strong>
+    //       </Th>
+    //       <Th column="lastName">
+    //         <strong className="name-header">Last Name</strong>
+    //       </Th>
+    //     </Thead>
+    //     {tableData.map(x=><Tr> <Td column="firstName">{x.GivenName}</Td> <Td column="lastName">{x.FamilyName}</Td></Tr>)}
+    //   </Table>
+//    );
+//  }
 //}
 
 type FIProps = {
@@ -53,13 +76,24 @@ type MyData = {
   something: string;
 }
 
+type LoadProgress = {
+  progress: string;
+}
 type myJson = {
   GivenName: string,
   FamilyName: string
 }
 
+let fileName = createRef <HTMLInputElement>();
+const tableStyle = {
+  margin: 20,
+  verticalAlign: 'top',
+  display: 'inline-block'
+};
+let sProgress: string;
+
 class FileInput extends React.Component<FIProps, FIState> {
-  fileInput: any;
+//  fileInput: any;
   timeCounter: number;
   names: OMod[];
   state: FIState;
@@ -77,11 +111,12 @@ class FileInput extends React.Component<FIProps, FIState> {
    }
 
   async componentDidMount() {
- 
-    const socket = socketIOClient();
+    console.log("getting socket");
+    //    const socket = socketIOClient();
+    const socket = io('http://localhost:9900');
     socket.on('news', (data: MyData) => {
-      console.log ("something received: ", data);
-      let jsonRcvd: myJson[] = JSON.parse (data.something);
+      console.log("something received: ", data);
+      let jsonRcvd: myJson[] = JSON.parse(data.something);
       //  this.setState (names: []});
       //this.state.names = [];
       for (let i = 0; i < jsonRcvd.length; i++) {
@@ -93,50 +128,70 @@ class FileInput extends React.Component<FIProps, FIState> {
       }
       //this.state.names = JSON.parse (data.something);
       //console.log ("state.names[1]: ", this.state.names[1]);
-      socket.close ();
-      window.clearInterval (timerId);
-    
+      socket.close();
+      window.clearInterval(timerId);
+
       this.setState(prevState => ({
-      ...prevState,
-      response: true
-    }))
-    
+        ...prevState,
+        response: true
+      }))
+
       //this.setState({ response: true });
     });
+
+    socket.on ('progress', (value: LoadProgress) => {
+      sProgress = value.progress;
+      //console.log ('Value: ', value.progress);
+    })
   }
+
 
   handleSubmit(event:React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    console.log("load button");
-    console.log ("props: ", this.props);
-    console.log ("state: ", this.state);
-    let formData = new FormData();
-    let fname = this.fileInput.current.files[0].name;
-    console.log ('fname: ', fname);
-    
-    formData.append("avatar", this.fileInput.current.files[0]);
-    formData.append("clearDB", this.props.bClearDB.toString());
-    formData.append("clearCats", this.props.bClearCats.toString());
-    formData.append("csv", fname.indexOf("csv") > 0 ? 'true' : 'false');
-    //initSocket();
-    
-    timerId = window.setInterval (() => {
-      // function called
-      this.timeCounter++;
-      this.setState ({timeCounter: this.timeCounter});
-    }, 1000);
+    if (fileName !== null && fileName.current !== null && fileName.current.files !== null) {
+      console.log("load button");
+      console.log("props: ", this.props);
+      console.log("state: ", this.state);
+      let formData = new FormData();
+      //let fname_old = this.fileInput.current.files[0].name;
+      let file = fileName.current.files[0];
+      //let fname: any = fileName.current.files.v[0];
+      console.log('fileName: ', fileName);
+      console.log('fname: ', file);
 
-    var opts = {
-      method: "PUT",
-      body: formData
-    };
-    fetch("/contacts/import", opts).then(function (response) {
-      return (response.text());
-    }).then(function (string) {
-      console.log("res: ", string);
-      //        $("body").html(string);
-      //location.reload(); // essential to refresh the page
-    });
+      //formData.append("avatar", this.fileInput.current.files[0]);
+      formData.append("avatar", file);
+      formData.append("clearDB", this.props.bClearDB.toString());
+      formData.append("clearCats", this.props.bClearCats.toString());
+      if (fileName !== null && fileName.current !== null) {
+        formData.append("csv", fileName.current.name.indexOf("csv") > 0 ? 'true' : 'false');
+      }
+      else {
+        formData.append("csv", 'false');
+      }
+
+      console.log("formdata: ", formData);
+
+      //initSocket();
+
+      timerId = window.setInterval(() => {
+        // function called
+        this.timeCounter++;
+        this.setState({ timeCounter: this.timeCounter });
+      }, 1000);
+
+      var opts = {
+        method: "PUT",
+        body: formData
+      };
+      fetch("/contacts/import", opts).then(function (response) {
+        return (response.text());
+      }).then(function (string) {
+        console.log("res: ", string);
+        //        $("body").html(string);
+        //location.reload(); // essential to refresh the page
+      });
+    }
   }
 
   render() {
@@ -144,15 +199,17 @@ class FileInput extends React.Component<FIProps, FIState> {
       <form onSubmit={this.handleSubmit}>
         <label>
           Upload file:
-          <input style={{width: "100%"}} accept=".csv, .CSV, .vcf, .VCF" type="file" ref={this.fileInput} />
+          <input style={{width: "100%"}} accept=".csv, .CSV, .vcf, .VCF" type="file" ref={fileName}/>
         </label>
         <br /><br />
         <button type="submit"><strong>Submit</strong></button>
         <div>
         {this.state.response
-          ? <div><p>Loading done.
-            Near-duplicates:</p>{MyTable (this.names)}</div>
-          : <p>Loading {this.state.timeCounter}</p>
+          ? <div><p>Loading done.</p>
+            <p>Near-duplicates:</p>
+            <div style={tableStyle}>{this.names.length > 0 ? DupsTable  (this.names) : ''}</div>
+            </div>
+          : <p>Loading: {sProgress}%</p>
         }</div>
       </form>
     );
@@ -226,7 +283,7 @@ export class Load extends React.Component<{}, {bClearDB: boolean, bClearCats: bo
         {Header ()}
         <style>{`
       body {
-        background-image: url("/static/oriental.png");
+        background-image: url("/static/media/oriental.png");
       }
       `}</style>
         <br /><br />

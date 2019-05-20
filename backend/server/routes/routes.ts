@@ -22,7 +22,7 @@ var uploadMulter = multer({
 // I don"t know if the "avatar" here has to match what is in the put
 
 router.put("/contacts/import", 
-    uploadMulter.single("avatar"), async function (req: any) {
+    uploadMulter.single("avatar"), async function (req: any, res: any, next: any) {
     //req.file.filename gives the file name on the server
     // req.file.originalname gives the client file name
     // console.log("body: ", req.body);
@@ -36,7 +36,9 @@ router.put("/contacts/import",
     dbFunctions.writeDateFile ();
 
     //bClearedDB = false;
-    //console.log("/contacts/import req body: ", req.body);
+    console.log("/contacts/import req.body: ", req.body);
+    console.log ("req.file: ", req.file);
+    console.log ('req.file.path: ', req.file.path);
     if (req.body.clearDB === 'true') {
         await dbConn.clearDB();
         //bClearedDB = true;
@@ -46,6 +48,7 @@ router.put("/contacts/import",
         dbFunctions.deleteCatsFile();
         // erase the categories file
     }
+    //let fname = req.body.avatar.toLowerCase();
     let fname = req.file.filename.toLowerCase();
     console.log ("file name: ", fname);
     if (req.body.csv === 'true') {

@@ -41,6 +41,8 @@ app.get('*', function (req: any, res: any, next: any) {
 //    res.sendFile(path.join(__dirname, 'frontend/build', req.params[0]));
     res.sendFile (req.params[0], {root: frontend});
     console.log("contacts sendFile done: ", path.join(frontend, req.params[0]));
+//    res.sendFile (req.params[0]);
+//    console.log("contacts sendFile done: ", req.params[0]);
 });
   // starting express app
   //let socketapp = app.listen(port);
@@ -66,9 +68,15 @@ ioApp.on('connection', function (socket: any) {
 });
 
 module.exports.sendSomething = function (aoContacts: [{}]) {
-  console.log ("sending something: ", JSON.stringify (aoContacts));
+  //console.log ("sending something: ", JSON.stringify (aoContacts));
   ioApp.emit('news', {
     something: JSON.stringify (aoContacts)
+  });
+}
+
+module.exports.sendProgress = function (value: string) {
+  ioApp.emit ('progress', {
+    progress: value
   });
 }
 

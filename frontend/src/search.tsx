@@ -135,6 +135,7 @@ export class Search extends React.Component<{}, CSRState> {
 //          {this.props.children}
 
   ModalBox (iPerson: number) {
+    console.log ("ModalBox: ", aoFoundNames[iPerson].GivenName);
     return (
       <div className="backdrop" style={backStyle}>
       <div className="modal" style={modalStyle}>
@@ -152,16 +153,17 @@ export class Search extends React.Component<{}, CSRState> {
   rowSel (index: number) {
     console.log ("Row: ", index);
     this.setState ({iPersonShow: index});
+    console.log ('iPS: ', this.state.iPersonShow);
   }
 
-  handleClick () {
-    return;
-  }
+//  handleClick () {
+//    return;
+//  }
 
-  handleClose () {
-    this.setState ({iPersonShow: -1});
-    return;
-  }
+//  handleClohandleClose () {
+//    this.setState ({iPersonShow: -1});
+//    return;
+//  }
 
   NameTable (tableData: { GivenName: string, FamilyName: string }[]) {
     //console.log("Hello World");
