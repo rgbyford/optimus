@@ -1,3 +1,4 @@
+import './index.css';
 import React, {createRef} from 'react';
 //import socketIOClient from 'socket.io-client';
 import io from 'socket.io-client';
@@ -90,13 +91,14 @@ const tableStyle = {
   verticalAlign: 'top',
   display: 'inline-block'
 };
-let sProgress: string;
+let iProgress: number = -1;
 
 class FileInput extends React.Component<FIProps, FIState> {
 //  fileInput: any;
   timeCounter: number;
   names: OMod[];
   state: FIState;
+  bSubmitButton: boolean;
 
   constructor(props: any) {
     super(props);
@@ -104,6 +106,7 @@ class FileInput extends React.Component<FIProps, FIState> {
     this.setState = this.setState.bind(this);
     this.timeCounter = 0;
     this.names = [];
+    this.bSubmitButton = true;
     this.state = {
       timeCounter: 0,
       response: false
@@ -140,7 +143,7 @@ class FileInput extends React.Component<FIProps, FIState> {
     });
 
     socket.on ('progress', (value: LoadProgress) => {
-      sProgress = value.progress;
+      iProgress = Number (value.progress);
       //console.log ('Value: ', value.progress);
     })
   }
@@ -149,6 +152,7 @@ class FileInput extends React.Component<FIProps, FIState> {
   handleSubmit(event:React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (fileName !== null && fileName.current !== null && fileName.current.files !== null) {
+      this.bSubmitButton = false;
       console.log("load button");
       console.log("props: ", this.props);
       console.log("state: ", this.state);
@@ -199,18 +203,15 @@ class FileInput extends React.Component<FIProps, FIState> {
       <form onSubmit={this.handleSubmit}>
         <label>
           Upload file:
-          <input style={{width: "100%"}} accept=".csv, .CSV, .vcf, .VCF" type="file" ref={fileName}/>
+          <input disabled={!this.bSubmitButton} style={{width: "100%"}} accept=".csv, .CSV, .vcf, .VCF" type="file" ref={fileName}/>
         </label>
         <br /><br />
-        <button type="submit"><strong>Submit</strong></button>
-        <div>
-        {this.state.response
-          ? <div><p>Loading done.</p>
-            <p>Near-duplicates:</p>
+        <button disabled={!this.bSubmitButton} type="submit" ><strong>Submit</strong></button>
+          {this.state.response ? <div><p>Loading done.<br /><br />Near-duplicates:</p>
             <div style={tableStyle}>{this.names.length > 0 ? DupsTable  (this.names) : ''}</div>
             </div>
-          : <p>Loading: {sProgress}%</p>
-        }</div>
+            : ''}
+          <div>{iProgress >= 0 && !this.state.response ? <p>Loading  {iProgress}%</p> : ''}</div>
       </form>
     );
   }
@@ -278,14 +279,10 @@ export class Load extends React.Component<{}, {bClearDB: boolean, bClearCats: bo
     let buttonStyle = {width: "16px", height: "16px"};
 
     return (
+      <body>
       <strong>
       <div style={{  margin: '0 20px' }}>
         {Header ()}
-        <style>{`
-      body {
-        background-image: url("/static/media/oriental.png");
-      }
-      `}</style>
         <br /><br />
         <h2 style={{ textAlign: 'left' }}>Load contacts (last loaded {this.state.date})</h2>
         <form>
@@ -309,6 +306,7 @@ export class Load extends React.Component<{}, {bClearDB: boolean, bClearCats: bo
         <FileInput bClearDB={this.state.bClearDB} bClearCats={this.state.bClearCats} />
         </div>
         </strong>
+        </body>
     );
   }
 }

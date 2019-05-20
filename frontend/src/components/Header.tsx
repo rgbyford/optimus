@@ -7,19 +7,6 @@ import { styleToolbar } from './SharedStyles';
 import '../index.css';
 import {style} from "typestyle";
 
-//import styled from 'styled-components';
-
-//const Button = styled.button`
-//  &:hover {
-//    background:teal;
-//  }
-//`;
-
-//    color: 'black',
-//    "&:hover": {
-//      color: 'white'
-//    }
-
 const styles: {styleButton: {}} = {
  styleButton: {
     margin: '0px 50px 10px auto',
@@ -32,7 +19,6 @@ const styles: {styleButton: {}} = {
  }
 };
 
-
 /** convert a style object to a CSS class name */
 const niceColors = style({
   transition: 'color .2s',
@@ -44,7 +30,6 @@ const niceColors = style({
   }
 });
 
-//<h1 className={niceColors}>Hello world</h1>
 const MyLoad = (props: any) => <Link to="/load" {...props} />
 const MySearch =  (props: any) => <Link to="/search" {...props} />
 function Header() {

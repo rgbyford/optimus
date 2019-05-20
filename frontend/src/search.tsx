@@ -1,19 +1,8 @@
 import * as React from 'react';
 import { getList, getContacts } from './public';
-//import ComboSelect from 'react-combo-select';
-//require('../node_modules/react-combo-select/style.css');
 import Header from './components/Header';
-//import { O_CREAT } from 'constants';
-//import PropTypes from 'prop-types';
-//import {Table, Thead, Th, Tr,Td} from 'reactable';
 import ReactDataGrid from 'react-data-grid';
-//import {ModalContainer, ModalDialog} from 'react-modal-dialog';
 
-//import PropTypes from 'prop-types';
-//import { isNullOrUndefined } from 'util';
-
-
-//const NUM_ANDS = 4;
 type OMod = {
   id: number,
   GivenName: string,
@@ -84,6 +73,7 @@ const tableStyle = {
   verticalAlign: 'top',
   display: 'inline-block'
 };
+
 const boxStyle = {
   margin: 20,
   verticalAlign: 'top',
@@ -92,16 +82,12 @@ const boxStyle = {
     
 let aiCatsSelected: number[] = [];
 let aoSearch: OSearch[] = [];
-//aoSearch.push (new OSearch ());
 aoSearch[0] = new OSearch ();
 aoSearch[0].bNext = true;
-console.log ("aoS original length: ", aoSearch.length);
 let bRefining: boolean;
-//let sSubCatOf: string;
 let aoFoundNames: OMod[] = [];
 
 let iTotalRows = 0;   // easy way, rather than checking aoSearch
-//let iPersonShow = -1;
 
 const columns = [
   { key: 'GivenName', name: 'GivenName' },
@@ -132,8 +118,6 @@ export class Search extends React.Component<{}, CSRState> {
     return;
   }
 
-//          {this.props.children}
-
   ModalBox (iPerson: number) {
     console.log ("ModalBox: ", aoFoundNames[iPerson].GivenName);
     return (
@@ -149,24 +133,11 @@ export class Search extends React.Component<{}, CSRState> {
     );
   }
 
-
   rowSel (index: number) {
-    console.log ("Row: ", index);
     this.setState ({iPersonShow: index});
-    console.log ('iPS: ', this.state.iPersonShow);
   }
 
-//  handleClick () {
-//    return;
-//  }
-
-//  handleClohandleClose () {
-//    this.setState ({iPersonShow: -1});
-//    return;
-//  }
-
   NameTable (tableData: { GivenName: string, FamilyName: string }[]) {
-    //console.log("Hello World");
     return (<ReactDataGrid
       minWidth = {500}
       columns={columns}
@@ -181,29 +152,23 @@ export class Search extends React.Component<{}, CSRState> {
     try {
       iTotalRows = 1;
       bRefining = false;
-      console.log ("CDM before gL call");
       const list = await getList();
-      console.log("CDM:", list);
       this.setState({ // eslint-disable-line
         list: list,
         loading: false,
       });
-      //bCatSelected = false;
     } catch (err) {
-//      this.setState({ loading: false, error: err.message || err.toString() }); // eslint-disable-line
       this.setState({ loading: false }); // eslint-disable-line
     }
   }
 
   async searchButton () {
-    console.log ("Search button");
     bRefining = true;
     let asSearch: string[] = [];  // api is written to use array of strings
     for (let i = 0; i < iTotalRows; i++) {
       asSearch[i] = aoSearch[i].sSearch;
     }
     let aoContacts = await getContacts(asSearch);
-    console.log ("aoFound: ", aoContacts.aoFound);
     this.setState ({aoFound: aoContacts.aoFound});      // same name in backend!
       for (let i = 0; i < aoContacts.aoFound.length; i++) {
         let oName = {} as OMod;
@@ -211,15 +176,14 @@ export class Search extends React.Component<{}, CSRState> {
         oName = aoContacts.aoFound[i];
         aoFoundNames.push(oName);
       }
-      console.log (aoFoundNames);
      return;
   }
 
   // Add category to search.  Selection is in e.target.options.  iRow is the search row
   catAddSelect = (e: React.ChangeEvent<HTMLSelectElement>, iRow: number) => {
-    console.log ("Need to debug this");
+//    console.log ("Need to debug this");
     aoSearch[iRow].sCat = [].filter.call(e.target.options, (o: any) => o.selected).map((o: any) => o.value);
-    console.log ("catAddSelect: ", aoSearch[iRow].sCat);
+//    console.log ("catAddSelect: ", aoSearch[iRow].sCat);
   }
 
   andButton = (param: number) => () => {
@@ -299,10 +263,7 @@ export class Search extends React.Component<{}, CSRState> {
     }
 
     let aoFoundPeople: OMod[] = [];
-    console.log ("csr aoFound 1: ", state.aoFound);
-//    if(state.aoFound !== undefined) {
     if(state.aoFound !== []) {
-      console.log ("csr aoFound 2: ", state.aoFound);
       aoFoundPeople = state.aoFound;
       aoFoundPeople.sort((a: OMod, b: OMod) => (a.FamilyName > b.FamilyName) ? 1 :
        (b.FamilyName > a.FamilyName) ? -1 : 
@@ -312,13 +273,9 @@ export class Search extends React.Component<{}, CSRState> {
     else {
       aoFoundPeople = [];
     }
-    //console.log ("aoFP: ", aoFoundPeople);
-
-//    this.aoFound.map((x, y) => console.log (x.FamilyName));
 
     for (let i = 0; i < aoFoundPeople.length; i++) {
       aoFoundPeople[i].url = `https://app.fullcontact.com/contacts/${aoFoundPeople[i].FC_ID1}/${aoFoundPeople[i].FC_ID2}`;
-//      console.log ('URL: ', aoFoundPeople[i].url);
     }
     console.log ('aoSearch len', aoSearch.length);
     console.log ('aoCatsList: ', aoSearch[0].aoCatsList);
