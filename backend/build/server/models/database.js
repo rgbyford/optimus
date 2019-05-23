@@ -1,5 +1,8 @@
 const connFns = require("./connection");
+const serverFns = require('../server');
 let iBadOnes = 0;
+let iRows = 0;
+let aoContacts = [];
 let aasTagsMain = [
     ['1', '1'],
     ['event', 'event'],
@@ -90,7 +93,6 @@ module.exports.readCatsFile = function () {
     openCatsFile("a+");
     console.log("readCatsFile: ", fdCats);
     const sCats = fsDB.readFileSync(fdCats, "utf8");
-    console.log("sCats");
     if (sCats.length) {
         aoCatsRead = JSON.parse(sCats);
     }
@@ -142,11 +144,15 @@ function buildCategories(asTag) {
         }
     }
 }
-let iRows = 0;
-let aoContacts;
+let iTotalRows;
+let iPercent = 0;
 module.exports.importNames = function (iCount = 0) {
+    if (iCount > 0) {
+        iTotalRows = iCount;
+        iPercent = 0;
+    }
     if (aoContacts.length === 0) {
-        console.log(`Import names done - ${iRows} rows`);
+        console.log(`Import names done - ${iTotalRows} rows`);
         return;
     }
     var oContact = {};
@@ -200,7 +206,11 @@ module.exports.importNames = function (iCount = 0) {
     });
     aoContacts.shift();
     connFns.insertContact(oContact, aoContacts.length === 0);
-    iRows++;
+    if (iRows++ > iTotalRows / 50) {
+        iPercent += 2;
+        serverFns.sendProgress(iPercent.toString());
+        iRows = 0;
+    }
     return;
 };
 //# sourceMappingURL=database.js.map

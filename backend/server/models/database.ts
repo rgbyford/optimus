@@ -327,7 +327,7 @@ module.exports.importNames = function (iCount: number = 0) {
     if (iRows++ > iTotalRows / 50) {
         // show progress every 2%
         iPercent += 2;
-        //console.log ('Progress: ', iPercent);
+        //`console.log ('Progress: ', iPercent);
         serverFns.sendProgress (iPercent.toString ());
         iRows = 0;
     }

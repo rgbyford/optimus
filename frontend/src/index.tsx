@@ -7,6 +7,8 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
+console.log ("Index!");
+
 ReactDOM.render((
   <BrowserRouter>
   <Switch>

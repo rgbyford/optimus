@@ -1,11 +1,12 @@
 import './index.css';
 import React, {createRef} from 'react';
 //import socketIOClient from 'socket.io-client';
-import io from 'socket.io-client';
+//import io from 'socket.io-client';
 //import {Table, Thead, Th, Tr,Td} from 'reactable';
 import { getLoadDate } from './public';
 import Header from './components/Header';
 import ReactDataGrid from 'react-data-grid';
+import openSocket from 'socket.io-client';
 
 let aoCats: {} = [];
 let timerId: number;
@@ -115,8 +116,8 @@ class FileInput extends React.Component<FIProps, FIState> {
 
   async componentDidMount() {
     console.log("getting socket");
-    //    const socket = socketIOClient();
-    const socket = io('http://localhost:9900');
+    const socket = openSocket('http://localhost:9901', {transports: ['websocket']});
+    // have to do it this way to avoid CORS errors - gosh knows why
     socket.on('news', (data: MyData) => {
       console.log("something received: ", data);
       let jsonRcvd: myJson[] = JSON.parse(data.something);

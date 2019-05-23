@@ -21,8 +21,13 @@ type OCat = {
   key: number
 };
 
+type listType = {
+  aoCats: OCat[]
+};
+
+let list: listType;
+
 type CSRState = {
-  list: OCat[],
   loading: boolean,
   sAddCat: string[],
   aoFound: OSearch[],
@@ -79,13 +84,15 @@ const boxStyle = {
   verticalAlign: 'top',
   display: 'inline-block'
 };
-    
+
 let aiCatsSelected: number[] = [];
 let aoSearch: OSearch[] = [];
 aoSearch[0] = new OSearch ();
 aoSearch[0].bNext = true;
 let bRefining: boolean;
 let aoFoundNames: OMod[] = [];
+let bStartOver: boolean = false;
+let aoFoundPeople: OMod[] = [];
 
 let iTotalRows = 0;   // easy way, rather than checking aoSearch
 
@@ -100,7 +107,7 @@ export class Search extends React.Component<{}, CSRState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      list: [],
+//      list: [],
       loading: true,
       sAddCat: [],
       aoFound: [],
@@ -152,16 +159,16 @@ export class Search extends React.Component<{}, CSRState> {
     try {
       iTotalRows = 1;
       bRefining = false;
-      const list = await getList();
-      this.setState({ // eslint-disable-line
-        list: list,
-        loading: false,
+      list = await getList();
+      this.setState({ // eslint-disable-link
+        loading: false
       });
     } catch (err) {
       this.setState({ loading: false }); // eslint-disable-line
     }
   }
 
+  
   async searchButton () {
     bRefining = true;
     let asSearch: string[] = [];  // api is written to use array of strings
@@ -184,6 +191,11 @@ export class Search extends React.Component<{}, CSRState> {
 //    console.log ("Need to debug this");
     aoSearch[iRow].sCat = [].filter.call(e.target.options, (o: any) => o.selected).map((o: any) => o.value);
 //    console.log ("catAddSelect: ", aoSearch[iRow].sCat);
+  }
+
+  startOverButton = (thisParam: any) => () => {
+    bStartOver = true;
+    thisParam.setState ({iCounter: thisParam.state.iCounter++});    // just to cause refresh
   }
 
   andButton = (param: number) => () => {
@@ -245,9 +257,9 @@ export class Search extends React.Component<{}, CSRState> {
         console.log('aoS[iR].sSCO: ', aoSearch[iRow].sSubCatOf);
         // work out select elements
         let j = 0;
-        for (let i = 0; i < state.list.aoCats.length; i++) {
-          if (state.list.aoCats[i].sIsSubCatOf === aoSearch[iRow].sSubCatOf) {
-            aoSearch[iRow].aoCatsList.push(state.list.aoCats[i]);
+        for (let i = 0; i < list.aoCats.length; i++) {
+          if (list.aoCats[i].sIsSubCatOf === aoSearch[iRow].sSubCatOf) {
+            aoSearch[iRow].aoCatsList.push(list.aoCats[i]);
             aoSearch[iRow].aoCatsList[j].key = j++;
           }
         }
@@ -262,7 +274,6 @@ export class Search extends React.Component<{}, CSRState> {
       }
     }
 
-    let aoFoundPeople: OMod[] = [];
     if(state.aoFound !== []) {
       aoFoundPeople = state.aoFound;
       aoFoundPeople.sort((a: OMod, b: OMod) => (a.FamilyName > b.FamilyName) ? 1 :
@@ -294,6 +305,7 @@ export class Search extends React.Component<{}, CSRState> {
           <div>{oSrch.bNext ? <button onClick={this.nextButton(index1)}>Next</button> : ''}</div>
           <div>{oSrch.bAnd ? <button onClick={this.andButton(index1)}>AND</button> : ''}</div>
           <div>{oSrch.bSearch ? <button onClick={this.searchButton}>Search</button> : ''}</div>
+          <div>{oSrch.bSearch ? <button onClick={this.startOverButton (this)}>Start over</button> : ''}</div>
           </div>)}
           <br></br>
             <div style={tableStyle}>{aoFoundPeople.length > 0 ? this.NameTable  (aoFoundPeople) : ''}</div>
@@ -307,6 +319,19 @@ export class Search extends React.Component<{}, CSRState> {
 
 
   render() {
+    if (bStartOver) { 
+      aiCatsSelected = [];
+      aoSearch = [];
+      aoSearch[0] = new OSearch();
+      aoSearch[0].bNext = true;
+      bRefining = false;
+      aoFoundNames = [];
+      iTotalRows = 1;
+      bStartOver = false;
+      this.setState ({aoFound: []});
+      aoFoundPeople = [];
+    }
+        //console.log ("oSrch.sSearch: ", aoSearch[0].sSearch);
     console.log (`render CSRWD: |`, {...this.state});
     // state has members as above - list is null on the first call, is {aoCats[]} on the second call
     // and loading true on the first call, false on the second

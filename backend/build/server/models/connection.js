@@ -117,8 +117,6 @@ function insertContactCallback(err, res) {
     }
     else {
         if (res.result.nModified > 0) {
-            console.log(`nM > 0: ${iRowsCBCount}: ${res.result.n} ${res.result.nModified} ${res.result.ok}`);
-            console.log(`${oContactSaved.GivenName} ${oContactSaved.FamilyName}`);
             let oMod = {};
             oMod.GivenName = oContactSaved.GivenName;
             oMod.FamilyName = oContactSaved.FamilyName;
