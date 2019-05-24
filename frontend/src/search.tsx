@@ -177,13 +177,14 @@ export class Search extends React.Component<{}, CSRState> {
     }
     let aoContacts = await getContacts(asSearch);
     this.setState ({aoFound: aoContacts.aoFound});      // same name in backend!
-      for (let i = 0; i < aoContacts.aoFound.length; i++) {
-        let oName = {} as OMod;
-        oName.id = i;
-        oName = aoContacts.aoFound[i];
-        aoFoundNames.push(oName);
-      }
-     return;
+    aoFoundNames = [];
+    for (let i = 0; i < aoContacts.aoFound.length; i++) {
+      let oName = {} as OMod;
+      oName.id = i;
+      oName = aoContacts.aoFound[i];
+      aoFoundNames.push(oName);
+    }
+    return;
   }
 
   // Add category to search.  Selection is in e.target.options.  iRow is the search row
@@ -195,7 +196,8 @@ export class Search extends React.Component<{}, CSRState> {
 
   startOverButton = (thisParam: any) => () => {
     bStartOver = true;
-    thisParam.setState ({iCounter: thisParam.state.iCounter++});    // just to cause refresh
+    thisParam.setState ({aoFound: [], iPersonShow: -1});
+    //thisParam.setState ({iCounter: thisParam.state.iCounter++});    // just to cause refresh
   }
 
   andButton = (param: number) => () => {
@@ -308,6 +310,7 @@ export class Search extends React.Component<{}, CSRState> {
           <div>{oSrch.bSearch ? <button onClick={this.startOverButton (this)}>Start over</button> : ''}</div>
           </div>)}
           <br></br>
+            <div>{aoFoundPeople.length > 0 ? <p>Found {aoFoundPeople.length}</p> : ''}</div>
             <div style={tableStyle}>{aoFoundPeople.length > 0 ? this.NameTable  (aoFoundPeople) : ''}</div>
             <div style={boxStyle}>{this.state.iPersonShow >= 0 ? this.ModalBox (this.state.iPersonShow) : ''}</div>
           <div>
@@ -317,7 +320,6 @@ export class Search extends React.Component<{}, CSRState> {
     );
 }
 
-
   render() {
     if (bStartOver) { 
       aiCatsSelected = [];
@@ -326,10 +328,9 @@ export class Search extends React.Component<{}, CSRState> {
       aoSearch[0].bNext = true;
       bRefining = false;
       aoFoundNames = [];
+      aoFoundPeople = [];
       iTotalRows = 1;
       bStartOver = false;
-      this.setState ({aoFound: []});
-      aoFoundPeople = [];
     }
         //console.log ("oSrch.sSearch: ", aoSearch[0].sSearch);
     console.log (`render CSRWD: |`, {...this.state});

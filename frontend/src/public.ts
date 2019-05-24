@@ -1,6 +1,6 @@
 import 'isomorphic-fetch';
 
-const dev = true;
+const dev = false;
 //const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3300;
 const ROOT_URL = dev ? `http://localhost:${port}` : 'http://tobycontacts.ddns.net';
