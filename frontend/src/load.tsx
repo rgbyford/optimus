@@ -1,12 +1,14 @@
 import './index.css';
 import React, {createRef} from 'react';
-//import socketIOClient from 'socket.io-client';
-//import io from 'socket.io-client';
-//import {Table, Thead, Th, Tr,Td} from 'reactable';
 import { getLoadDate } from './public';
 import Header from './components/Header';
 import ReactDataGrid from 'react-data-grid';
-import openSocket from 'socket.io-client';
+import io from 'socket.io-client';
+
+const dev = false;
+//const port = process.env.PORT || 3300;
+const ROOT_URL = dev ? `http://localhost` : 'http://tobycontacts.ddns.net';
+//const ROOT_URL = 'http://localhost';
 
 let aoCats: {} = [];
 let timerId: number;
@@ -26,45 +28,16 @@ const columns = [
   { key: 'FamilyName', name: 'FamilyName'}
 ];
 
-/*
-interface Props {
-  tableData: OMod[];
+function DupsTable(tableData: { GivenName: string, FamilyName: string }[]) {
+  return (<ReactDataGrid
+    minWidth={500}
+    columns={columns}
+    rowGetter={i => tableData[i]}
+    rowsCount={tableData.length}
+    enableCellSelect={false}
+    minHeight={420} />);
 }
-*/
-
-function DupsTable (tableData: { GivenName: string, FamilyName: string }[]) {
-    //console.log("Hello World");
-    return (<ReactDataGrid
-      minWidth = {500}
-      columns={columns}
-      rowGetter={i => tableData[i]}
-      rowsCount={tableData.length}
-      enableCellSelect={false}
-      minHeight={420} />);
-  }
   
-//function MyTable (tableData: {GivenName: string, FamilyName: string} []) {
-//class MyTable extends React.Component<{tableData: OMod[]}> {
-//  render() {
-//  console.log ('MyTable length', tableData.length);
-//  console.log ('First name: ', tableData[0].GivenName, ' ', tableData[0].FamilyName);
-//    return (
-
-      // <Table className = "table">
-    //        <Thead>
-    //       <Th column="firstName">
-    //         <strong className="name-header">First Name</strong>
-    //       </Th>
-    //       <Th column="lastName">
-    //         <strong className="name-header">Last Name</strong>
-    //       </Th>
-    //     </Thead>
-    //     {tableData.map(x=><Tr> <Td column="firstName">{x.GivenName}</Td> <Td column="lastName">{x.FamilyName}</Td></Tr>)}
-    //   </Table>
-//    );
-//  }
-//}
-
 type FIProps = {
   bClearDB: boolean,
   bClearCats: boolean
@@ -116,7 +89,9 @@ class FileInput extends React.Component<FIProps, FIState> {
 
   async componentDidMount() {
     console.log("getting socket");
-    const socket = openSocket('http://localhost:9901', {transports: ['websocket']});
+    const socket = io.connect (`${ROOT_URL}`);
+    //const socket = openSocket(`${ROOT_URL}:3600`, {transports: ['websocket']});
+    console.log ('socket: ', socket);
     // have to do it this way to avoid CORS errors - gosh knows why
     socket.on('news', (data: MyData) => {
       console.log("something received: ", data);

@@ -150,7 +150,7 @@ eval("var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments,
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nvar express = __webpack_require__(/*! express */ \"express\");\r\nconst path = __webpack_require__(/*! path */ \"path\");\r\nconst serveStatic = __webpack_require__(/*! serve-static */ \"serve-static\");\r\nconst cors = __webpack_require__(/*! cors */ \"cors\");\r\nconst dev = \"development\" !== 'production';\r\nconst port = process.env.PORT || 3300;\r\nconst socketPort = process.env.SOCKET || 9901;\r\nconst ROOT_URL = dev ? `http://localhost:${port}` : `http://localhost:${port}`;\r\nvar app = express();\r\nvar socketServer = app.listen(socketPort);\r\nconst ioApp = __webpack_require__(/*! socket.io */ \"socket.io\").listen(socketServer);\r\nconst routes = __webpack_require__(/*! ./routes/routes */ \"./server/routes/routes.ts\");\r\napp.use(cors());\r\napp.use(express.json());\r\napp.use(function (req, res, next) {\r\n    console.log(\"CORS stuff\");\r\n    res.setHeader('Access-Control-Allow-Origin', '*');\r\n    res.header(\"Access-Control-Allow-Origin\", \"*\");\r\n    res.header(\"Access-Control-Allow-Headers\", \"Origin, X-Requested-With, Content-Type, Accept\");\r\n    next();\r\n});\r\nlet frontend = __dirname.replace(\"back\", \"front\");\r\nfrontend = frontend.replace(\"/build/server\", \"\");\r\napp.use(express.static(frontend));\r\napp.use(routes);\r\napp.get('*', function (req, res, next) {\r\n    console.log(\"app.get\", req.params[0]);\r\n    res.sendFile(req.params[0], { root: frontend });\r\n    console.log(\"contacts sendFile done: \", path.join(frontend, req.params[0]));\r\n});\r\nconsole.log(\"app listening on port \", port);\r\nconsole.log(\"express.static: \", frontend);\r\napp.listen(port, (err) => {\r\n    if (err)\r\n        throw err;\r\n    console.log(`> Ready on ${ROOT_URL}`);\r\n});\r\nioApp.on('connection', function (socket) {\r\n    console.log('a user connected');\r\n    socket.on('my other event', function (data) {\r\n        console.log(\"other event\", data);\r\n    });\r\n});\r\nmodule.exports.sendSomething = function (aoContacts) {\r\n    ioApp.emit('news', {\r\n        something: JSON.stringify(aoContacts)\r\n    });\r\n};\r\nmodule.exports.sendProgress = function (value) {\r\n    ioApp.emit('progress', {\r\n        progress: value\r\n    });\r\n};\r\nexports.default = app;\r\n\n\n//# sourceURL=webpack:///./server/server.ts?");
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nvar express = __webpack_require__(/*! express */ \"express\");\r\nconst path = __webpack_require__(/*! path */ \"path\");\r\nconst cors = __webpack_require__(/*! cors */ \"cors\");\r\nconst dev = false;\r\nconst port = process.env.PORT || 3600;\r\nconst socketPort = process.env.SOCKET || 9901;\r\nconst ROOT_URL = dev ? `http://localhost:${port}` : `http://tobycontacts.ddns.net:${port}`;\r\nvar app = __webpack_require__(/*! express */ \"express\")();\r\nvar http = __webpack_require__(/*! http */ \"http\").Server(app);\r\nvar ioApp = __webpack_require__(/*! socket.io */ \"socket.io\")(http);\r\nconsole.log(\"Socket port: \", socketPort);\r\nconst routes = __webpack_require__(/*! ./routes/routes */ \"./server/routes/routes.ts\");\r\napp.use(cors());\r\napp.use(express.json());\r\napp.use(function (req, res, next) {\r\n    res.setHeader('Access-Control-Allow-Origin', '*');\r\n    res.header(\"Access-Control-Allow-Origin\", \"*\");\r\n    res.header(\"Access-Control-Allow-Headers\", \"Origin, X-Requested-With, Content-Type, Accept\");\r\n    next();\r\n});\r\nlet frontend = __dirname.replace(\"back\", \"front\");\r\nfrontend = frontend.replace(\"/build/server\", \"\");\r\napp.use(express.static(frontend));\r\napp.use(routes);\r\nhttp.listen(80, (err) => {\r\n    if (err)\r\n        throw err;\r\n    console.log(`> Ready on ${ROOT_URL}`);\r\n});\r\napp.get('/', function (req, res, next) {\r\n    console.log(\"app.get\", req.params[0]);\r\n    res.sendFile(req.params[0], { root: frontend });\r\n    console.log(\"contacts sendFile done: \", path.join(frontend, req.params[0]));\r\n});\r\nioApp.on('connection', function (socket) {\r\n    console.log('a user connected');\r\n    socket.on('my other event', function (data) {\r\n        console.log(\"other event\", data);\r\n    });\r\n});\r\nconsole.log(\"app listening on port \", port);\r\nconsole.log(\"express.static: \", frontend);\r\nmodule.exports.sendSomething = function (aoContacts) {\r\n    ioApp.emit('news', {\r\n        something: JSON.stringify(aoContacts)\r\n    });\r\n};\r\nmodule.exports.sendProgress = function (value) {\r\n    ioApp.emit('progress', {\r\n        progress: value\r\n    });\r\n};\r\nexports.default = app;\r\n\n\n//# sourceURL=webpack:///./server/server.ts?");
 
 /***/ }),
 
@@ -184,6 +184,17 @@ eval("module.exports = require(\"express\");\n\n//# sourceURL=webpack:///externa
 /***/ (function(module, exports) {
 
 eval("module.exports = require(\"fs\");\n\n//# sourceURL=webpack:///external_%22fs%22?");
+
+/***/ }),
+
+/***/ "http":
+/*!***********************!*\
+  !*** external "http" ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+eval("module.exports = require(\"http\");\n\n//# sourceURL=webpack:///external_%22http%22?");
 
 /***/ }),
 
@@ -228,17 +239,6 @@ eval("module.exports = require(\"papaparse\");\n\n//# sourceURL=webpack:///exter
 /***/ (function(module, exports) {
 
 eval("module.exports = require(\"path\");\n\n//# sourceURL=webpack:///external_%22path%22?");
-
-/***/ }),
-
-/***/ "serve-static":
-/*!*******************************!*\
-  !*** external "serve-static" ***!
-  \*******************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-eval("module.exports = require(\"serve-static\");\n\n//# sourceURL=webpack:///external_%22serve-static%22?");
 
 /***/ }),
 

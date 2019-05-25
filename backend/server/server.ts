@@ -1,38 +1,19 @@
 var express = require ('express');
 //import { nextTick } from "q";
 const path = require ("path");
-const serveStatic = require ("serve-static");
+//const serveStatic = require ("serve-static");
 const cors = require ('cors');
-const dev = process.env.NODE_ENV !== 'production';
-//const dev = false;
-const port = process.env.PORT || 3300;
+//const dev = process.env.NODE_ENV !== 'production';
+const dev = false;
+const port = process.env.PORT || 3600;
 const socketPort = process.env.SOCKET || 9901;
-const ROOT_URL = dev ? `http://localhost:${port}` : `http://localhost:${port}`;
+const ROOT_URL = dev ? `http://localhost:${port}` : `http://tobycontacts.ddns.net:${port}`;
 
-var app = express();
-//const socketServer = require ('http').Server (app);
-var socketServer = app.listen(socketPort);
-const ioApp = require('socket.io').listen(socketServer);
-//ioApp.origins ('*:*');
-//ioApp.set('origins', 'http://tobycontacts.ddns.net');
-//ioApp.set('origins', 'http://localhost:3300');
-//var ioApp = require('socket.io')(socketServer, { origins: '*:*'});
-  // socketServer.listen (socketPort, () => {
-  //   console.log (`socket listening on port ${socketPort}`);
-  // })
+var app = require('express')();
+var http = require('http').Server(app);
+var ioApp = require('socket.io')(http);
 
-// const server = http.createServer(app);
-// const sio = require("socket.io")(server, {
-//   handlePreflightRequest: (req: any, res: any) => {
-//       const headers = {
-//           "Access-Control-Allow-Headers": "Content-Type, Authorization",
-//           "Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
-//           "Access-Control-Allow-Credentials": true
-//       };
-//       res.writeHead(200, headers);
-//       res.end();
-//   }
-// });
+console.log ("Socket port: ", socketPort);
 
 const routes: object = require("./routes/routes");
 //import { IncomingMessage } from 'http';
@@ -41,7 +22,7 @@ app.use(cors());
 //app.options('*', cors());
 app.use(express.json());
 app.use(function (req: any, res: any, next: any) {
-  console.log ("CORS stuff");
+  //console.log ("CORS stuff");
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -58,7 +39,12 @@ app.use(express.static(frontend));
 app.use(routes);
 //  console.log("serve static: ", path.join(__dirname, 'public'));
 //  app.use(serveStatic(path.join(__dirname, 'public')));
-app.get('*', function (req: any, res: any, next: any) {
+http.listen(80, (err: any) => {
+  if (err) throw err;
+  console.log(`> Ready on ${ROOT_URL}`); // eslint-disable-line no-console
+});
+
+app.get('/', function (req: any, res: any, next: any) {
   console.log ("app.get", req.params[0]);
   //    console.log ("app.get", path.join(frontend, req.params[0]));
   //    console.log("sendFile: ", path.resolve("..", "frontend", "build", req.params[0]));
@@ -73,22 +59,18 @@ app.get('*', function (req: any, res: any, next: any) {
 //let socketapp = app.listen(port);
 //  io = require('socket.io').listen(socketapp);
 
-//console.log ("io: ", io);
-console.log("app listening on port ", port);
-console.log ("express.static: ", frontend);
-  app.listen(port, (err: any) => {
-    if (err) throw err;
-    console.log(`> Ready on ${ROOT_URL}`); // eslint-disable-line no-console
-  });
-
-
-
 ioApp.on('connection', function (socket: any) {
   console.log('a user connected');
   socket.on('my other event', function (data: any) {
     console.log("other event", data);
   });
 });
+
+//console.log ("io: ", io);
+console.log("app listening on port ", port);
+console.log ("express.static: ", frontend);
+  //app.listen(port, (err: any) => {
+
 
 module.exports.sendSomething = function (aoContacts: [{}]) {
   //console.log ("sending something: ", JSON.stringify (aoContacts));

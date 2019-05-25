@@ -2,20 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require('express');
 const path = require("path");
-const serveStatic = require("serve-static");
 const cors = require('cors');
-const dev = process.env.NODE_ENV !== 'production';
-const port = process.env.PORT || 3300;
+const dev = false;
+const port = process.env.PORT || 3600;
 const socketPort = process.env.SOCKET || 9901;
-const ROOT_URL = dev ? `http://localhost:${port}` : `http://localhost:${port}`;
-var app = express();
-var socketServer = app.listen(socketPort);
-const ioApp = require('socket.io').listen(socketServer);
+const ROOT_URL = dev ? `http://localhost:${port}` : `http://tobycontacts.ddns.net:${port}`;
+var app = require('express')();
+var http = require('http').createServer(app);
+var ioApp = require('socket.io')(http);
+console.log("Socket port: ", socketPort);
 const routes = require("./routes/routes");
 app.use(cors());
 app.use(express.json());
 app.use(function (req, res, next) {
-    console.log("CORS stuff");
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -25,23 +24,23 @@ let frontend = __dirname.replace("back", "front");
 frontend = frontend.replace("/build/server", "");
 app.use(express.static(frontend));
 app.use(routes);
-app.get('*', function (req, res, next) {
+app.get('/', function (req, res, next) {
     console.log("app.get", req.params[0]);
     res.sendFile(req.params[0], { root: frontend });
     console.log("contacts sendFile done: ", path.join(frontend, req.params[0]));
-});
-console.log("app listening on port ", port);
-console.log("express.static: ", frontend);
-app.listen(port, (err) => {
-    if (err)
-        throw err;
-    console.log(`> Ready on ${ROOT_URL}`);
 });
 ioApp.on('connection', function (socket) {
     console.log('a user connected');
     socket.on('my other event', function (data) {
         console.log("other event", data);
     });
+});
+console.log("app listening on port ", port);
+console.log("express.static: ", frontend);
+http.listen(port, (err) => {
+    if (err)
+        throw err;
+    console.log(`> Ready on ${ROOT_URL}`);
 });
 module.exports.sendSomething = function (aoContacts) {
     ioApp.emit('news', {
