@@ -1,11 +1,8 @@
 import * as React from 'react';
 import { getList, getContacts } from './public';
 import Header from './components/Header';
-//import ReactDataGrid from 'react-data-grid';
-//import { ProgressBar } from "react-bootstrap";
 import { Column, Table } from 'react-virtualized';
 import 'react-virtualized/styles.css';
-import TouchRipple from '@material-ui/core/ButtonBase/TouchRipple';
 
 type OMod = {
   id: number,
@@ -24,14 +21,15 @@ type OMod = {
 type OCat = {
   sIsSubCatOf: string,
   sThisCat: string,
+  iIndent: number,
   key: number
 };
 
-type listType = {
+type catListType = {
   aoCats: OCat[]
 };
 
-let list: listType;
+let catList: catListType;
 
 type CSRState = {
   loading: boolean,
@@ -97,6 +95,8 @@ const boxStyle = {
 
 const paraStyle = {
   marginBottom: 0,
+  whiteSpace: 'pre' as 'pre',
+  textAlign: 'left' as 'left',
   marginTop: 0
 }
 
@@ -110,16 +110,6 @@ let bStartOver: boolean = false;
 let aoFoundPeople: OMod[] = [];
 
 let iTotalRows = 0;   // easy way, rather than checking aoSearch
-
-// const MakeHeader = (value: any) => {
-//   return <ProgressBar now={value} label={`${value}`} />;
-// };
-
-// const columns = [
-//   { key: 'GivenName', name: 'Given Name', headerRenderer: MakeHeader ('Given Name')  },
-// //  { key: 'FamilyName', name: 'Family Name', formatter: FamilyNameFormatter }
-//   { key: 'FamilyName', name: 'Family Name', headerRenderer: MakeHeader ('Family Name') }
-// ];
 
 async function searchButton (param: number, thisParam: any) {
 // searchButton = (param: number) => async () => {
@@ -177,18 +167,40 @@ export class Search extends React.Component<{}, CSRState> {
 
   ModalBox (iPerson: number) {
     console.log ("ModalBox: ", iPerson, aoFoundNames[iPerson].GivenName);
-
+    let sAddString: string;
+    
+    // for each GroupMembership string
+    for (let i = 0; i < aoFoundNames[iPerson].GroupMembership.length; i++) {
+      for (let j = 0; j < catList.aoCats.length; j++) {
+        // search aoCats.sThisCat for a match
+        if (aoFoundNames[iPerson].GroupMembership[i] === catList.aoCats[j].sThisCat) {
+          // set GroupMembership string using aoCats.iIndent
+          switch (catList.aoCats[j].iIndent) {
+            case 0: sAddString = ''; break;
+            case 1: sAddString = '    '; break;
+            case 2: sAddString = '        '; break;
+            case 3: sAddString = '            '; break;
+            default: sAddString = ''; break;
+          }
+          aoFoundNames[iPerson].GroupMembership[i] = sAddString + aoFoundNames[iPerson].GroupMembership[i];
+          break;
+        }
+      }
+    }
+    console.log ("xx|", aoFoundNames[iPerson].GroupMembership[1], "|xx");
     return (
       <div className="backdrop" style={backStyle}>
       <div className="modal" style={modalStyle}>
           <div><p>{aoFoundNames[iPerson].GivenName} {aoFoundNames[iPerson].FamilyName}</p></div>
-          <p>{aoFoundNames[iPerson].FC_ID1 !== undefined ? <a target="_blank" href={aoFoundNames[iPerson].url}><strong>FullContact</strong></a> : ''}</p>
+          <p>{aoFoundNames[iPerson].FC_ID1 !== undefined
+            ? <a rel="noopener noreferrer" target="_blank" href={aoFoundNames[iPerson].url}><strong>FullContact</strong></a>
+            : ''}</p>
           <p>{aoFoundNames[iPerson]['Phone1-Value']}&nbsp;&nbsp;{aoFoundNames[iPerson]['E-mail1-Value']}</p><br></br>
           <img alt="" style={{height: 120}} src={aoFoundNames[iPerson].Photo1}/>
           <br></br>
           <br></br>
-          {aoFoundNames[iPerson].GroupMembership.map((oName,index1) => <div key={index1}>
-            <div><p style={paraStyle}>{oName}</p></div></div>)}
+          {aoFoundNames[iPerson].GroupMembership.map((sTagName,index1) => <div key={index1}>
+            <div><p style={paraStyle}>{sTagName}</p></div></div>)}
           <div className="footer"></div>
         </div>
       </div>
@@ -229,7 +241,7 @@ export class Search extends React.Component<{}, CSRState> {
       aoSearch[0].bShowList = true;
       iTotalRows = 1;
       bRefining = false;
-      list = await getList();
+      catList = await getList();
       this.setState({ // eslint-disable-link
         loading: false
       });
@@ -276,7 +288,7 @@ export class Search extends React.Component<{}, CSRState> {
     if (aoSearch[param].sSearch !== "") {
       aoSearch[param].sSearch += ' _ ';
     }
-    if (aoSearch[param].iCatSearches < 3  && aoSearch[param].sCat.length < 2) {     // < 2 ==> not OR
+    if (aoSearch[param].iCatSearches < 4 && aoSearch[param].sCat.length < 2) {     // < 2 ==> not OR
       console.log ('sCat: ', aoSearch[param].sCat);
       console.log ('sCat length: ', aoSearch[param].sCat.length);
       aoSearch[param].bComplete = false;
@@ -319,13 +331,13 @@ export class Search extends React.Component<{}, CSRState> {
       console.log ("ACNSS: ", aoSearch[iRow].bAnd, aoSearch[iRow].bComplete, aoSearch[iRow].bNext, aoSearch[iRow].bSearch, aoSearch[iRow].bStartOver);
       console.log ("bRefining: ", bRefining);
       aoSearch[iRow].aoCatsList = [];
-      if (aoSearch[iRow].iCatSearches < 3) {
+      if (aoSearch[iRow].iCatSearches < 4) {
         console.log('aoS[iR].sSCO: ', aoSearch[iRow].sSubCatOf);
         // work out select elements
         let j = 0;
-        for (let i = 0; i < list.aoCats.length; i++) {
-          if (list.aoCats[i].sIsSubCatOf === aoSearch[iRow].sSubCatOf) {
-            aoSearch[iRow].aoCatsList.push(list.aoCats[i]);
+        for (let i = 0; i < catList.aoCats.length; i++) {
+          if (catList.aoCats[i].sIsSubCatOf === aoSearch[iRow].sSubCatOf) {
+            aoSearch[iRow].aoCatsList.push(catList.aoCats[i]);
             aoSearch[iRow].aoCatsList[j].key = j++;
           }
         }

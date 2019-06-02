@@ -35,9 +35,10 @@ for (let i = 0; i < aasTagsMain.length; i++) {
     });
 }
 class AoCats {
-    constructor(sCat, sSubCat) {
+    constructor(sCat, sSubCat, iIndent) {
         this.sIsSubCatOf = sCat;
         this.sThisCat = sSubCat;
+        this.iIndent = iIndent;
     }
 }
 let aoCatsRead;
@@ -138,7 +139,7 @@ function buildCategories(asTag) {
                 return (element.sThisCat === asCatSub[j]);
             });
             if (iCatFound < 0) {
-                aoCatsRead.push(new AoCats(sIsSubCatOf, asCatSub[j]));
+                aoCatsRead.push(new AoCats(sIsSubCatOf, asCatSub[j], j));
             }
             sIsSubCatOf = asCatSub[j];
         }
@@ -174,6 +175,7 @@ module.exports.importNames = function (iCount = 0) {
             let asSecondSplit = [];
             let sValue = nestedContent[docTitle];
             asFirstSplit = sValue.split(contactsSource === 'CSV' ? ' ::: ' : ',');
+            asFirstSplit.sort();
             for (let i = 0; i < asFirstSplit.length; i++) {
                 let sTemp;
                 if (asFirstSplit[i].indexOf(".loc_U") < 0) {

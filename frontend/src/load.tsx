@@ -233,11 +233,14 @@ export class Load extends React.Component<{}, {bClearDB: boolean, bClearCats: bo
 //      this.setState({error: err.message || err.toString() }); // eslint-disable-line
     }
   }
+
   private handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     console.log ("Input change", event.target.name, event.target.type, event.target.checked);
+    let sNameString: string = event.target.name;
+    let bChecked: boolean = event.target.checked;
     this.setState(prevState => ({
       ...prevState,
-      [event.target.name]: event.target.checked
+      [sNameString]: bChecked
     }))
   }
   

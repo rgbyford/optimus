@@ -1,13 +1,9 @@
 const connFns = require("./connection");
 const serverFns = require ('../server');
 
-//export module db {
 let iBadOnes = 0;
 let iRows = 0;
 let aoContacts: any[] = [];      // could have "any" properties, since read from vcf
-//let iSavedCount;
-
-
 let aasTagsMain: string[][] = [
     ['1', '1'],
     ['event', 'event'],
@@ -41,38 +37,30 @@ for (let i = 0; i < aasTagsMain.length; i++) {
         'sLongName': aasTagsMain[i][1]
     });
 }
-//console.log(aoTagNames[0]);
-
-//type Cat = {
-//    sIsSubCatOf: string,
-//    sThisCat: string
-//}
 
 class AoCats {
     sIsSubCatOf: string;
     sThisCat: string;
-    constructor(sCat: string, sSubCat: string) {
+    iIndent: number;
+    constructor(sCat: string, sSubCat: string, iIndent: number) {
         this.sIsSubCatOf = sCat;
         this.sThisCat = sSubCat;
+        this.iIndent = iIndent;
     }
 }
 
 let aoCatsRead: AoCats[];
 
-//import fsDB from './csvjson';
 const fsDB: any = require("fs");
 let fdCats: number;
 
 function indexOfByKey(obj_list: any, key: string, value: any) {
     for (let index = 0; index < obj_list.length; index++) {
-//    for (index in obj_list) {
-        // console.log("iOBK: ", index, obj_list[index][key], value);
         if (obj_list[index][key] === value) return index;
     }
     return -1;
 }
 
-//export function writeDateFile () {
 module.exports.writeDateFile = function () {
     const fdDate = fsDB.openSync ('loaddate.txt', 'w');
     let dDate: Date = new Date();
@@ -84,25 +72,17 @@ module.exports.writeDateFile = function () {
     fsDB.closeSync (fdDate);
 }
 
-//export function readDateFile () {
 module.exports.readDateFile = function () {
     const fdDate = fsDB.openSync ('loaddate.txt', 'r');
     const sDate = fsDB.readFileSync(fdDate, "utf8");
     fsDB.closeSync (fdDate);
     return (sDate);
 }
+
 // functions for dealing with the categories
 
 function openCatsFile(mode: string) {
     console.log ("cwd:", process.cwd());
-    // if (mode === 'r') {
-    // fsDB.accessSync('categories.txt', fsDB.constants.F_OK, (err) => {
-    //     console.log(`categories.txt ${err ? 'does not exist' : 'exists'}`);
-    //     if (err) {
-    //         mode = 'w';     // open it for write (makes new one)
-    //     }
-    //   });
-    // }
     fdCats = fsDB.openSync("categories.txt", mode);
 }
 
@@ -143,17 +123,6 @@ module.exports.readCatsFile = function () {
     return (aoCatsRead);
 };
 
-/*
-module.exports.findSubCats = function (sCat: string) {
-    let asSubCats: string[];
-    for (let i = 0; i < aoCatsRead.length; i++) {
-        if (aoCatsRead[i].sIsSubCatOf === sCat) {
-            asSubCats.push(aoCatsRead.sThisCat);
-        }
-    }
-};
-*/
-
 let contactsSource: string;
 
 type oMod = {
@@ -166,14 +135,6 @@ type oMod = {
   url: string
 };
 
-//let oTest: oMod;
-//type oModType = keyof typeof oTest;
-//const propName: oModType = 'test';
-
-
-//let oCon: {[id: number]: oMod};
-
-//export function clearContacts (source: string) {
 module.exports.clearContacts = function (source: string) {
     contactsSource = source;
     aoContacts.length = 0;
@@ -233,7 +194,7 @@ function buildCategories(asTag: string[]) {
             //            console.log ("iCatFound: ", iCatFound);
             if (iCatFound < 0) { // category doesn't exist - add it
 //                console.log("Found a new one", asCatSub[j]);
-                aoCatsRead.push(new AoCats(sIsSubCatOf, asCatSub[j]));
+                aoCatsRead.push(new AoCats(sIsSubCatOf, asCatSub[j], j));
             }
             sIsSubCatOf = asCatSub[j];
         }
@@ -280,6 +241,8 @@ module.exports.importNames = function (iCount: number = 0) {
             let sValue = nestedContent[docTitle];
             // VCF file splits tags with ',' - CSV file with ':::'
             asFirstSplit = sValue.split(contactsSource === 'CSV' ? ' ::: ' : ',');
+            // sort them so they come out right when displayed
+            asFirstSplit.sort ();   // leaving out the params to get ascending ASCII sort
             for (let i = 0; i < asFirstSplit.length; i++) {
                 let sTemp;
                 //if (asFirstSplit[i][0] === ".") {

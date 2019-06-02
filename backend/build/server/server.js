@@ -8,7 +8,7 @@ const port = process.env.PORT || 3600;
 const socketPort = process.env.SOCKET || 9901;
 const ROOT_URL = dev ? `http://localhost:${port}` : `http://tobycontacts.ddns.net:${port}`;
 var app = require('express')();
-var http = require('http').createServer(app);
+var http = require('http').Server(app);
 var ioApp = require('socket.io')(http);
 console.log("Socket port: ", socketPort);
 const routes = require("./routes/routes");
@@ -24,6 +24,11 @@ let frontend = __dirname.replace("back", "front");
 frontend = frontend.replace("/build/server", "");
 app.use(express.static(frontend));
 app.use(routes);
+http.listen(80, (err) => {
+    if (err)
+        throw err;
+    console.log(`> Ready on ${ROOT_URL}`);
+});
 app.get('/', function (req, res, next) {
     console.log("app.get", req.params[0]);
     res.sendFile(req.params[0], { root: frontend });
@@ -37,11 +42,6 @@ ioApp.on('connection', function (socket) {
 });
 console.log("app listening on port ", port);
 console.log("express.static: ", frontend);
-http.listen(port, (err) => {
-    if (err)
-        throw err;
-    console.log(`> Ready on ${ROOT_URL}`);
-});
 module.exports.sendSomething = function (aoContacts) {
     ioApp.emit('news', {
         something: JSON.stringify(aoContacts)
