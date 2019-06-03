@@ -100,6 +100,11 @@ const paraStyle = {
   marginTop: 0
 }
 
+const textStyle = {
+  textAlign: 'left' as 'left',
+  marginLeft: '45%'
+}
+
 let aiCatsSelected: number[] = [];
 let aoSearch: OSearch[] = [];
 aoSearch[0] = new OSearch ();
@@ -379,9 +384,10 @@ export class Search extends React.Component<{}, CSRState> {
       <h2>Search page</h2>
       <strong>
         {aoSearch.map((oSrch,index1) => <div key={index1}>
-          <div><p>{oSrch.sSearch}</p></div>
+          <div><p>{oSrch.sSearch.length > 0 ? 'Search for:' : ''} {oSrch.sSearch}</p></div>
           {oSrch.bShowList ?
-            <div><select size={10} multiple={oSrch.bAllowMult ? true : false} 
+          <div><p style={textStyle}>Select one {oSrch.bAllowMult ? ' or more' : ''}:</p>
+            <select size={10} multiple={oSrch.bAllowMult ? true : false} 
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.catAddSelect(e, index1)}>
             {oSrch.aoCatsList.map((value2, index2) => <option key = {index2}> {value2.sThisCat} </option>)}
           </select></div> : ''}
