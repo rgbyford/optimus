@@ -36,8 +36,15 @@ type CSRState = {
   sAddCat: string[],
   aoFound: OSearch[],
   iCounter: number,
-  iPersonShow: number
+  iPersonShow: number,
+  iSelectedRow: number,
+  iStillInSearch: number
 };  
+
+class OTagInfo {
+  sTag: string = '';
+  iPersonNum: number = 0;
+};
 
 class OSearch {
   sSearch: string = '';
@@ -93,17 +100,21 @@ const boxStyle = {
   display: 'inline-block'
 };
 
-const paraStyle = {
-  marginBottom: 0,
-  whiteSpace: 'pre' as 'pre',
-  textAlign: 'left' as 'left',
-  marginTop: 0
-}
+// const paraStyle = {
+//   marginBottom: 0,
+//   whiteSpace: 'pre' as 'pre',
+//   textAlign: 'left' as 'left',
+//   marginTop: 0
+// }
 
 const textStyle = {
   textAlign: 'left' as 'left',
   marginLeft: '45%'
 }
+
+// const tableText = {
+//   textAlign: 'left' as 'left'
+// }
 
 let aiCatsSelected: number[] = [];
 let aoSearch: OSearch[] = [];
@@ -117,7 +128,6 @@ let aoFoundPeople: OMod[] = [];
 let iTotalRows = 0;   // easy way, rather than checking aoSearch
 
 async function searchButton (param: number, thisParam: any) {
-// searchButton = (param: number) => async () => {
     console.log ("Search button:", param);
     bRefining = true;
     aoSearch[param].bSearch = false;
@@ -133,6 +143,7 @@ async function searchButton (param: number, thisParam: any) {
     for (let i = 0; i < aoContacts.aoFound.length; i++) {
       aoContacts.aoFound[i].GivenName = aoContacts.aoFound[i].GivenName + ' ';   // for table display
     }
+    console.log ("setState 1");
     thisParam.setState ({aoFound: aoContacts.aoFound});      // same name in backend!
     for (let i = 0; i < aoContacts.aoFound.length; i++) {
       let oName = {} as OMod;
@@ -147,52 +158,182 @@ async function searchButton (param: number, thisParam: any) {
     return;
   }
 
+//let iSelectedRow: number;
+let sTag: string;
+
+  // ************ Search class
 export class Search extends React.Component<{}, CSRState> {
   state: CSRState;
+
   constructor(props: any) {
     super(props);
     this.state = {
-//      list: [],
       loading: true,
       sAddCat: [],
       aoFound: [],
       iCounter: 0,
-      iPersonShow: -1
+      iPersonShow: -1,
+      iSelectedRow: -1,
+      iStillInSearch: 0
     }
     console.log ("constructor aoFound: ", this.state.aoFound);
     this.nextButton = this.nextButton.bind(this);
     this.andButton = this.andButton.bind(this);
-//    this.searchButton = this.searchButton.bind(this);
+    this.onRefineClick = this.onRefineClick.bind(this);
     aiCatsSelected[0] = 0;
   }
-   
+
+  async componentDidMount() {
+    try {
+      aoSearch[0].bShowList = true;
+      iTotalRows = 1;
+      bRefining = false;
+      catList = await getList();
+      console.log ("setState 2");
+      this.setState({ // eslint-disable-link
+        loading: false
+      });
+    } catch (err) {
+      console.log ("setState 3");
+      this.setState({ loading: false }); // eslint-disable-line
+    }
+  }
+ 
   onClose () {
     return;
   }
 
-  ModalBox (iPerson: number) {
-    console.log ("ModalBox: ", iPerson, aoFoundNames[iPerson].GivenName);
-    let sAddString: string;
+  onRefineClick = (index: number) => () => {
+    let sSearch: string = "";
+    let sSrchTag: string = sTag;
+//    let sSubCat: string = '';
+    // build the search string
+    do {
+      for (let i: number = 0; i < catList.aoCats.length; i++) {
+        if (catList.aoCats[i].sThisCat === sSrchTag) {
+          if (sSearch !== '') {
+            sSearch = ' _ ' + sSearch;
+          }
+          sSearch = sSrchTag + sSearch;
+          sSrchTag = catList.aoCats[i].sIsSubCatOf;
+//          sSubCat = sSrchTag;
+          break;
+        }
+      }
+    } while (sSrchTag !== '');
+    console.log("Search string: ", sSearch);
+    iTotalRows++;
+    aoSearch[iTotalRows - 1] = new OSearch;
+    aoSearch[iTotalRows - 1].sSearch = sSearch;
+    aoSearch[iTotalRows - 1].sSubCatOf = sTag;
+    aoSearch[iTotalRows - 1].sCat[0] = sTag;
+    console.log("iTotalRows: ", iTotalRows);
+    console.log("aoSearch: ", aoSearch);
+    console.log("Faking search");
+    console.log ("setState 4");
+    this.setState ({iSelectedRow: -2, iPersonShow: -1});  // prevent show of picture (index is about to change)
+    searchButton (iTotalRows - 1, this);      // fake it
+  }
+
+  tagRowSel (index: number, iPerson: number) {
+    // take off the indent
+    sTag = aoFoundNames[iPerson].GroupMembership[index].substr(1);
+    console.log ("Clicked tag: ", sTag);
+    let bFound: boolean = false;
+    console.log ("setState 5");
+    this.setState ({iSelectedRow: -2}); // clear any previous selection
     
+    // now search the searches (!) to see if this tag was already included
+    console.log ("Search lengths: ", aoSearch.length, aoSearch[0].aoCatsList.length);
+    console.log ("aoSearch: ", aoSearch);
+    for (let i: number = 0; i < aoSearch.length; i++) {
+      if (aoSearch[i].sSearch.indexOf (sTag) >= 0) {
+        console.log ("Found tag ", sTag);
+        bFound = true;
+        break;
+      }
+    }
+    if (!bFound) {
+      console.log ("Can't find tag", sTag);
+      // work out how many this would reduce the search to
+      // GM includes indent in its strings, but that doesn't matter
+      let iRemaining = 0;
+      for (let i = 0; i < aoFoundNames.length; i++) {
+        console.log("aoFN[i].GM: ", i, aoFoundNames[i].GivenName, aoFoundNames[i].GroupMembership);
+        for (let j = 0; j < aoFoundNames[i].GroupMembership.length; j++) {
+          if (aoFoundNames[i].GroupMembership[j].includes(sTag)) {
+            iRemaining++;
+            break;
+          }
+        }
+      }
+      console.log ("iRemaining: ", iRemaining);
+      console.log ("setState 6");
+      this.setState ({iSelectedRow: index, iStillInSearch: iRemaining});
+      // add it to the searches (have to find its parents), and fake the search button
+      // find the parents by searching through aoCatsList.sThisCat, and taking sIsSubCatOf
+      // repeat - until sIsSubCat of == ""
+//      this.setState ({iPersonShow: index});    // prevent trying to "reshow person" - is that what we want?
+
+    }
+    return;
+  }
+
+  // ********** Gives the list of the found person's tags
+  tagTable (asTagData: string[], iPerson: number) {
+    let aoTagInfo: OTagInfo[] = [];
+    
+    // table wants array of objects
+    for (let i: number = 0; i < asTagData.length; i++) {
+      aoTagInfo[i] = new OTagInfo ();
+      aoTagInfo[i].sTag = asTagData[i];
+      aoTagInfo[i].iPersonNum = iPerson;
+    }
+//    console.log ("setState 7");
+//    this.setState ({iSelectedRow: -2}); // clear any previous selection
+
+    // had to create cellRenderer to get the indents to work
+    return (<Table
+      width={200}
+      height={200}
+      headerHeight={20}
+      rowHeight={25}
+      rowCount={aoTagInfo.length}
+      rowGetter={({ index }) => aoTagInfo[index]}
+      onRowClick={({ event, index, rowData }) => this.tagRowSel(index, iPerson)}
+      >
+
+    <Column
+      dataKey='sTag'
+      cellRenderer={({ cellData, columnData, dataKey, rowData, rowIndex}) => {
+        const sIndent = cellData[0].toString() + 'em';
+        cellData = cellData.substr(1);
+        return (rowIndex === this.state.iSelectedRow ?
+        <div style={{backgroundColor: 'palegreen', textAlign: 'left', marginLeft: sIndent}}>{cellData}</div> :
+        <div style={{backgroundColor: 'white', textAlign: 'left', marginLeft: sIndent}}>{cellData}</div>)
+      }}
+      width={150}
+    />
+    </Table>
+
+    );
+  }
+
+  // *********** displays person (after click on list)
+  ModalBox (iPerson: number) {
     // for each GroupMembership string
     for (let i = 0; i < aoFoundNames[iPerson].GroupMembership.length; i++) {
       for (let j = 0; j < catList.aoCats.length; j++) {
         // search aoCats.sThisCat for a match
         if (aoFoundNames[iPerson].GroupMembership[i] === catList.aoCats[j].sThisCat) {
-          // set GroupMembership string using aoCats.iIndent
-          switch (catList.aoCats[j].iIndent) {
-            case 0: sAddString = ''; break;
-            case 1: sAddString = '    '; break;
-            case 2: sAddString = '        '; break;
-            case 3: sAddString = '            '; break;
-            default: sAddString = ''; break;
-          }
-          aoFoundNames[iPerson].GroupMembership[i] = sAddString + aoFoundNames[iPerson].GroupMembership[i];
+          // have to include indent in the string, because it seems you can only pass one 
+          // string as cellData to the cellRenderer
+          aoFoundNames[iPerson].GroupMembership[i] = 
+            catList.aoCats[j].iIndent + aoFoundNames[iPerson].GroupMembership[i];
           break;
         }
       }
     }
-    console.log ("xx|", aoFoundNames[iPerson].GroupMembership[1], "|xx");
     return (
       <div className="backdrop" style={backStyle}>
       <div className="modal" style={modalStyle}>
@@ -204,8 +345,8 @@ export class Search extends React.Component<{}, CSRState> {
           <img alt="" style={{height: 120}} src={aoFoundNames[iPerson].Photo1}/>
           <br></br>
           <br></br>
-          {aoFoundNames[iPerson].GroupMembership.map((sTagName,index1) => <div key={index1}>
-            <div><p style={paraStyle}>{sTagName}</p></div></div>)}
+            <div style={tableStyle}>{this.tagTable (aoFoundNames[iPerson].GroupMembership, iPerson)}</div>
+          <div>{this.state.iSelectedRow >= 0 ? <button onClick={this.onRefineClick(iPerson)}>Refine search ({this.state.iStillInSearch})</button> : ''}</div>
           <div className="footer"></div>
         </div>
       </div>
@@ -214,14 +355,15 @@ export class Search extends React.Component<{}, CSRState> {
 
   rowSel (index: number) {
     console.log ("Clicked row: ", index);
-    this.setState ({iPersonShow: index});
+    console.log ("setState 8");
+    this.setState ({iSelectedRow: -2, iPersonShow: index});
   }
 
-  NameTable (tableData: { GivenName: string, FamilyName: string }[]) {
+ NameTable (tableData: { GivenName: string, FamilyName: string }[]) {
     return (<Table
     width={300}
     height={300}
-    headerHeight={20}
+     headerHeight={20}
     rowHeight={30}
     rowCount={tableData.length}
     rowGetter={({ index }) => tableData[index]}
@@ -241,65 +383,49 @@ export class Search extends React.Component<{}, CSRState> {
     );
   }
 
-  async componentDidMount() {
-    try {
-      aoSearch[0].bShowList = true;
-      iTotalRows = 1;
-      bRefining = false;
-      catList = await getList();
-      this.setState({ // eslint-disable-link
-        loading: false
-      });
-    } catch (err) {
-      this.setState({ loading: false }); // eslint-disable-line
-    }
-  }
-
+  
   srchButton = (param: number, thisParam: any) => async () => {
     searchButton (param, thisParam);
   }
   
   // Add category to search.  Selection is in e.target.options.  iRow is the search row
   catAddSelect = (e: React.ChangeEvent<HTMLSelectElement>, iRow: number) => {
-//    console.log ("Need to debug this");
     aoSearch[iRow].sCat = [].filter.call(e.target.options, (o: any) => o.selected).map((o: any) => o.value);
-//    console.log ("catAddSelect: ", aoSearch[iRow].sCat);
   }
 
   startOverButton = (thisParam: any) => () => {
     bStartOver = true;
+    console.log ("setState 9");
     thisParam.setState ({aoFound: [], iPersonShow: -1});
-    //thisParam.setState ({iCounter: thisParam.state.iCounter++});    // just to cause refresh
   }
 
-  andButton = (param: number) => () => {
-    aoSearch[param].bAnd = false;
-    aoSearch[param].bSearch = false;
-    aoSearch[param].bStartOver = false;
-    console.log ('AND iCatSearches: ', aoSearch[param].iCatSearches);
+  andButton = (iAndSearchNum: number) => () => {
+    aoSearch[iAndSearchNum].bAnd = false;
+    aoSearch[iAndSearchNum].bSearch = false;
+    aoSearch[iAndSearchNum].bStartOver = false;
+    console.log ('AND iCatSearches: ', aoSearch[iAndSearchNum].iCatSearches);
     iTotalRows++;
     aoSearch[iTotalRows - 1] = new OSearch ();
     aoSearch[iTotalRows - 1].bNext = true;
     aoSearch[iTotalRows - 1].bShowList = true;
     // eslint-disable-next-line
+    console.log ("setState 10");
     this.setState ({iPersonShow: -1, iCounter: this.state.iCounter++});    // ensure refresh
   }
   
-  nextButton = (param: number) => () => {
-    // param is the argument you passed to the function
-    // e is the event object that returned
-    console.log ("next button: ", param, aoSearch[param].iCatSearches);
-    aoSearch[param].iCatSearches++;
-    if (aoSearch[param].sSearch !== "") {
-      aoSearch[param].sSearch += ' _ ';
+  // ************ next button
+  // iAndSearchNum is incremented each time you hit AND
+  nextButton = (iAndSearchNum: number) => () => {
+    console.log ("next button: ", iAndSearchNum, aoSearch[iAndSearchNum].iCatSearches);
+    aoSearch[iAndSearchNum].iCatSearches++;   // count categories added
+    if (aoSearch[iAndSearchNum].sSearch !== "") {   // not first category
+      aoSearch[iAndSearchNum].sSearch += ' _ ';
     }
-    if (aoSearch[param].iCatSearches < 4 && aoSearch[param].sCat.length < 2) {     // < 2 ==> not OR
-      console.log ('sCat: ', aoSearch[param].sCat);
-      console.log ('sCat length: ', aoSearch[param].sCat.length);
-      aoSearch[param].bComplete = false;
-      aoSearch[param].bShowList = true;
-      if (aoSearch[param].iCatSearches > 0) {       // not first list
-        aoSearch[param].bAnd = true;
+    if (aoSearch[iAndSearchNum].iCatSearches < 4 && aoSearch[iAndSearchNum].sCat.length < 2) {     // < 2 ==> not OR
+      aoSearch[iAndSearchNum].bComplete = false;
+      aoSearch[iAndSearchNum].bShowList = true;
+      if (aoSearch[iAndSearchNum].iCatSearches > 0) {       // not first list
+        aoSearch[iAndSearchNum].bAnd = true;
       }
     }
     else {            // got to 3 subcats
@@ -312,25 +438,24 @@ export class Search extends React.Component<{}, CSRState> {
       aoSearch[iTotalRows - 1] = new OSearch ();
       //      aoSearch[iTotalRows - 1].bNext = true;
     }
-    aoSearch[param].bSearch = true;
-    aoSearch[param].bStartOver = true;
-    aoSearch[param].sSearch += aoSearch[param].sCat.join (' OR '); // only puts in OR if there's more than one item in sCat?
-    console.log ("searchString: ", aoSearch[param].sSearch);
-    aoSearch[param].sSubCatOf = aoSearch[param].sCat[0];
-    console.log ('asSubCatOf: ', aoSearch[param].sCat[0]);
-    //sSubCatOf = this.sCat[0];          // deal with the fact that this is an array
-    //aiCatsSelected[param]++;
+    aoSearch[iAndSearchNum].bSearch = true;
+    aoSearch[iAndSearchNum].bStartOver = true;
+    aoSearch[iAndSearchNum].sSearch += aoSearch[iAndSearchNum].sCat.join (' OR '); // only puts in OR if there's more than one item in sCat?
+    console.log ("searchString: ", aoSearch[iAndSearchNum].sSearch);
+    aoSearch[iAndSearchNum].sSubCatOf = aoSearch[iAndSearchNum].sCat[0];
+    console.log ('asSubCatOf: ', aoSearch[iAndSearchNum].sCat[0]);
     if (bRefining) {
       console.log ("Faking search");
-      searchButton (param, this);      // fake it
+      searchButton (iAndSearchNum, this);      // fake it
     }
     else {
       // eslint-disable-next-line
+      console.log ("setState 11");
       this.setState ({iCounter: this.state.iCounter++});    // just to cause refresh
     }
   }
 
-  csr(state: any) {
+  presentSearchChoices (state: any) {
     for (let iRow = 0; iRow < iTotalRows; iRow++) {
       console.log('iTR, iRow, iCatSearches: ', iTotalRows, iRow, aoSearch[iRow].iCatSearches);
       console.log ("ACNSS: ", aoSearch[iRow].bAnd, aoSearch[iRow].bComplete, aoSearch[iRow].bNext, aoSearch[iRow].bSearch, aoSearch[iRow].bStartOver);
@@ -358,10 +483,7 @@ export class Search extends React.Component<{}, CSRState> {
         aoSearch[iRow].iCatSearchesMax = 2;
       }
     }
-    // if (iTotalRows === 1) {             // first time through
-    //   aoSearch[0].bShowList = true;
-    // }
-
+  
     if(state.aoFound !== []) {
       aoFoundPeople = state.aoFound;
       aoFoundPeople.sort((a: OMod, b: OMod) => (a.FamilyName > b.FamilyName) ? 1 :
@@ -384,14 +506,14 @@ export class Search extends React.Component<{}, CSRState> {
       <h2>Search page</h2>
       <strong>
         {aoSearch.map((oSrch,index1) => <div key={index1}>
-          <div><p>{oSrch.sSearch.length > 0 ? 'Search for:' : ''} {oSrch.sSearch}</p></div>
+          <div><p>{oSrch.sSearch.length > 0 ? (index1 > 0 ? 'AND:' : 'Search for:') : ''} {oSrch.sSearch}</p></div>
           {oSrch.bShowList ?
           <div><p style={textStyle}>Select one {oSrch.bAllowMult ? ' or more' : ''}:</p>
             <select size={10} multiple={oSrch.bAllowMult ? true : false} 
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.catAddSelect(e, index1)}>
             {oSrch.aoCatsList.map((value2, index2) => <option key = {index2}> {value2.sThisCat} </option>)}
           </select></div> : ''}
-          <div>{oSrch.bNext ? <button onClick={this.nextButton(index1)}>Next</button> : ''}</div>
+          <div>{oSrch.bNext ? <button onClick={this.nextButton(index1)}>Select</button> : ''}</div>
           <div>{oSrch.bAnd ? <button onClick={this.andButton(index1)}>AND</button> : ''}</div>
           <div>{oSrch.bSearch ? <button onClick={this.srchButton(index1, this)}>Search</button> : ''}</div>
           <div>{oSrch.bStartOver ? <button onClick={this.startOverButton (this)}>Start over</button> : ''}</div>
@@ -420,11 +542,10 @@ export class Search extends React.Component<{}, CSRState> {
       iTotalRows = 1;
       bStartOver = false;
     }
-        //console.log ("oSrch.sSearch: ", aoSearch[0].sSearch);
-    console.log (`render CSRWD: |`, {...this.state});
+    console.log (`presentSearchChoices: |`, {...this.state});
     // state has members as above - list is null on the first call, is {aoCats[]} on the second call
     // and loading true on the first call, false on the second
     // return <CSR {...this.props} {...this.state} />;
-   return (<div> {this.csr ({...this.state})} </div>);
+   return (<div> {this.presentSearchChoices ({...this.state})} </div>);
   }
 }

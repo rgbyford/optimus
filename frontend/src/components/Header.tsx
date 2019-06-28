@@ -32,6 +32,8 @@ const niceColors = style({
 
 const MyLoad = (props: any) => <Link to="/load" {...props} />
 const MySearch =  (props: any) => <Link to="/search" {...props} />
+const MyHelp = (props: any) => <Link to="/help" {...props} />
+
 function Header() {
   return (
     <div>
@@ -42,6 +44,8 @@ function Header() {
              variant='contained' style={styles.styleButton}>Load</Button>
           <Button component = {MySearch} className={niceColors}
            variant='contained' style={styles.styleButton}>Search</Button>
+          <Button component = {MyHelp} className={niceColors}
+           variant='contained' style={styles.styleButton}>Help</Button>
           </Grid>
         </Grid>
       </Toolbar>

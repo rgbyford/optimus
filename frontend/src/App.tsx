@@ -1,6 +1,9 @@
 import * as React from 'react';
 import './App.css';
 import Header from './components/Header';
+import ReactGA from 'react-ga';
+ReactGA.initialize('UA-141951386-1');
+ReactGA.pageview(window.location.pathname + window.location.search);
 
  export interface AppState {
    error: string;
