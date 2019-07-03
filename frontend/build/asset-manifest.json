@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "./static/css/main.ec2017d0.chunk.css",
-    "main.js": "./static/js/main.ee7636c7.chunk.js",
-    "main.js.map": "./static/js/main.ee7636c7.chunk.js.map",
-    "runtime~main.js": "./static/js/runtime~main.d653cc00.js",
-    "runtime~main.js.map": "./static/js/runtime~main.d653cc00.js.map",
-    "static/css/2.71916e70.chunk.css": "./static/css/2.71916e70.chunk.css",
-    "static/js/2.0a0c4217.chunk.js": "./static/js/2.0a0c4217.chunk.js",
-    "static/js/2.0a0c4217.chunk.js.map": "./static/js/2.0a0c4217.chunk.js.map",
-    "index.html": "./index.html",
-    "precache-manifest.caf4cdf67ce02e4f394ca2b28381957c.js": "./precache-manifest.caf4cdf67ce02e4f394ca2b28381957c.js",
-    "service-worker.js": "./service-worker.js",
-    "static/css/2.71916e70.chunk.css.map": "./static/css/2.71916e70.chunk.css.map",
-    "static/css/main.ec2017d0.chunk.css.map": "./static/css/main.ec2017d0.chunk.css.map",
-    "static/media/index.css": "./static/media/oriental.ca3ebe08.png"
+    "main.css": "/contacts/static/css/main.26a25a31.chunk.css",
+    "main.js": "/contacts/static/js/main.f5b83203.chunk.js",
+    "main.js.map": "/contacts/static/js/main.f5b83203.chunk.js.map",
+    "runtime~main.js": "/contacts/static/js/runtime~main.79ac44f6.js",
+    "runtime~main.js.map": "/contacts/static/js/runtime~main.79ac44f6.js.map",
+    "static/css/2.71916e70.chunk.css": "/contacts/static/css/2.71916e70.chunk.css",
+    "static/js/2.9ec4cfbb.chunk.js": "/contacts/static/js/2.9ec4cfbb.chunk.js",
+    "static/js/2.9ec4cfbb.chunk.js.map": "/contacts/static/js/2.9ec4cfbb.chunk.js.map",
+    "index.html": "/contacts/index.html",
+    "precache-manifest.e8dfe8b7fc8f63e4a0634ad0538d673d.js": "/contacts/precache-manifest.e8dfe8b7fc8f63e4a0634ad0538d673d.js",
+    "service-worker.js": "/contacts/service-worker.js",
+    "static/css/2.71916e70.chunk.css.map": "/contacts/static/css/2.71916e70.chunk.css.map",
+    "static/css/main.26a25a31.chunk.css.map": "/contacts/static/css/main.26a25a31.chunk.css.map",
+    "static/media/index.css": "/contacts/static/media/oriental.ca3ebe08.png"
   }
 }

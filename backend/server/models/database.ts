@@ -83,7 +83,12 @@ module.exports.readDateFile = function () {
 
 function openCatsFile(mode: string) {
     console.log ("cwd:", process.cwd());
-    fdCats = fsDB.openSync("categories.txt", mode);
+    try {
+        fdCats = fsDB.openSync("./categories.txt", mode);
+    }
+    catch (err) {
+        console.log ('Error opening cats file: ', err);
+    }
 }
 
 function writeCatsFile(aoCats: any) {

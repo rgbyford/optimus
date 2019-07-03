@@ -12,8 +12,8 @@ console.log ("Index!");
 
 ReactDOM.render((
   <BrowserRouter>
-  <Switch>
-    <Route exact path='/' component={App}/>
+   <Switch>
+    <Route exact path='/contacts' component={App}/>
     <Route path='/load' component={Load}/>
     <Route path='/search' component={Search}/>
     <Route path='/help' component={Help}/>
@@ -21,25 +21,5 @@ ReactDOM.render((
   </BrowserRouter>
 ), document.getElementById('root')
 );
-
-//    <App />
-
-//const bodyStyle = {
-//  backgroundImage: {bodyBkgd}
-//};
-//      {document.body.style.backgroundImage = bodyBkgd}
-
-// function Body () {
-//     return (
-//       <div>
-//         <App />
-//       </div>
-//     );
-// }
-
-// ReactDOM.render(
-//   <Body />,
-//   document.getElementById('root') as HTMLElement
-// );
 
 serviceWorker.unregister();

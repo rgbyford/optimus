@@ -223,7 +223,7 @@ export class Search extends React.Component<{}, CSRState> {
     } while (sSrchTag !== '');
     console.log("Search string: ", sSearch);
     iTotalRows++;
-    aoSearch[iTotalRows - 1] = new OSearch;
+    aoSearch[iTotalRows - 1] = new OSearch ();
     aoSearch[iTotalRows - 1].sSearch = sSearch;
     aoSearch[iTotalRows - 1].sSubCatOf = sTag;
     aoSearch[iTotalRows - 1].sCat[0] = sTag;
@@ -410,7 +410,9 @@ export class Search extends React.Component<{}, CSRState> {
     aoSearch[iTotalRows - 1].bShowList = true;
     // eslint-disable-next-line
     console.log ("setState 10");
-    this.setState ({iPersonShow: -1, iCounter: this.state.iCounter++});    // ensure refresh
+    let iCtr: number = this.state.iCounter;
+    iCtr++;
+    this.setState ({iPersonShow: -1, iCounter: iCtr});    // ensure refresh
   }
   
   // ************ next button
@@ -451,7 +453,9 @@ export class Search extends React.Component<{}, CSRState> {
     else {
       // eslint-disable-next-line
       console.log ("setState 11");
-      this.setState ({iCounter: this.state.iCounter++});    // just to cause refresh
+      let iCtr: number = this.state.iCounter;
+      iCtr++;
+      this.setState ({iCounter: iCtr});    // just to cause refresh
     }
   }
 

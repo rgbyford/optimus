@@ -2,8 +2,8 @@
   "name": "react-frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3300",
-  "homepage": ".",
+  "proxy": "http://localhost:3600/",
+  "homepage": "http://tobycontacts.ddns.net/contacts",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",

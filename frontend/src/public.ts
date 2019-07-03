@@ -3,7 +3,7 @@ import 'isomorphic-fetch';
 const dev = false;
 //const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3600;
-const ROOT_URL = dev ? `http://localhost:${port}` : 'http://tobycontacts.ddns.net';
+const ROOT_URL = dev ? `http://localhost:${port}` : 'http://tobycontacts.ddns.net/contacts';
 //const ROOT_URL = `http://localhost:${port}`;
 //const ROOT_URL = '';
 console.log (`NODE_ENV: ${process.env.NODE_ENV} dev: ${dev}`);

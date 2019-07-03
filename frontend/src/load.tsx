@@ -7,7 +7,7 @@ import io from 'socket.io-client';
 
 const dev = false;
 //const port = process.env.PORT || 3300;
-const ROOT_URL = dev ? `http://localhost` : 'http://tobycontacts.ddns.net';
+const ROOT_URL = dev ? `http://localhost` : 'http://tobycontacts.ddns.net/contacts';
 //const ROOT_URL = 'http://localhost';
 
 let aoCats: {} = [];
@@ -89,7 +89,8 @@ class FileInput extends React.Component<FIProps, FIState> {
 
   async componentDidMount() {
     console.log("getting socket");
-    const socket = io.connect (`${ROOT_URL}`);
+    const socket = io.connect (`${ROOT_URL}`, {path: '/contacts/socket.io'});
+    //const socket = io.connect ();   // defaults to current host and port
     //const socket = openSocket(`${ROOT_URL}:3600`, {transports: ['websocket']});
     console.log ('socket: ', socket);
     // have to do it this way to avoid CORS errors - gosh knows why

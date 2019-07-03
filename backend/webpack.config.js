@@ -14,6 +14,9 @@ fs.readdirSync('node_modules')
 module.exports = {
   mode: 'development',
   entry: './server/server.ts',
+  devServer: {
+    historyApiFallback: true
+  },
   output: {
     path: path.join(__dirname, '/build'),
     filename: 'bundle.js'
