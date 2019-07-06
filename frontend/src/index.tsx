@@ -13,7 +13,7 @@ console.log ("Index!");
 ReactDOM.render((
   <BrowserRouter>
    <Switch>
-    <Route exact path='/contacts' component={App}/>
+    <Route exact path='/optimus' component={App}/>
     <Route path='/load' component={Load}/>
     <Route path='/search' component={Search}/>
     <Route path='/help' component={Help}/>

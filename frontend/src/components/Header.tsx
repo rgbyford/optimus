@@ -30,9 +30,7 @@ const niceColors = style({
   }
 });
 
-const MyLoad = (props: any) => <Link to="/load" {...props} />
-const MySearch =  (props: any) => <Link to="/search" {...props} />
-const MyHelp = (props: any) => <Link to="/help" {...props} />
+const MyCharts = (props: any) => <Link to="/help" {...props} />
 
 function Header() {
   return (
@@ -40,12 +38,8 @@ function Header() {
       <Toolbar style={styleToolbar}>
         <Grid container direction="row" justify="space-around" alignItems="center">
           <Grid item sm={9} xs={8} style={{ paddingTop: '20px', textAlign: 'center' }}>
-          <Button component={MyLoad} className={niceColors}
-             variant='contained' style={styles.styleButton}>Load</Button>
-          <Button component = {MySearch} className={niceColors}
-           variant='contained' style={styles.styleButton}>Search</Button>
-          <Button component = {MyHelp} className={niceColors}
-           variant='contained' style={styles.styleButton}>Help</Button>
+          <Button component = {MyCharts} className={niceColors}
+           variant='contained' style={styles.styleButton}>Charts</Button>
           </Grid>
         </Grid>
       </Toolbar>

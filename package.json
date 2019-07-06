@@ -1,5 +1,5 @@
 {
-  "name": "create-mern-ts-app",
+  "name": "optimus",
   "version": "1.0.0",
   "private": true,
   "engines": {
@@ -36,5 +36,17 @@
     "react-scripts": "^3.0.0",
     "serve-static": "^1.13.2",
     "typescript": "^3.4.4"
-  }
+  },
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rgbyford/optimus.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rgbyford/optimus/issues"
+  },
+  "homepage": "https://github.com/rgbyford/optimus#readme",
+  "description": ""
 }

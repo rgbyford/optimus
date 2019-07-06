@@ -14,9 +14,9 @@ class App extends React.Component<{}, AppState> {
     return (
       <div>
             <Header/>
-            <title>Prodigium</title>
+            <title>Optimus</title>
             <meta name="description" content="" />
-          <h1>Prodigium Contact Search</h1>
+          <h1>Optimus</h1>
         </div>
       );
   }

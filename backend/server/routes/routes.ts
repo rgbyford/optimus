@@ -1,63 +1,9 @@
 var express = require ("express");
-//var app = express();
-//let express = require("express");
 let router = express.Router();
-const cjFns = require("../models/csvjson");
-const vcfFns = require('../models/vcfjson');
 const dbFunctions = require("../models/database");
 const dbConn = require("../models/connection");
-//const socketIo = require("socket.io");
-//require ("@types/express");
 
 let aoCats: object[] = [{}];
-//let asPrev: string[] = [];
-//let iAnd: number = -1;
-//let bAndBtnDisabled: boolean = false;
-//let bClearedDB: boolean = false;
-var multer = require("multer");
-var uploadMulter = multer({
-    dest: "./uploads/"
-});
-
-// I don"t know if the "avatar" here has to match what is in the put
-
-router.put("/contacts/import", 
-    uploadMulter.single("avatar"), async function (req: any, res: any, next: any) {
-    //req.file.filename gives the file name on the server
-    // req.file.originalname gives the client file name
-    // console.log("body: ", req.body);
-    //    document.body.style.cursor  = 'wait';
-    // console.log ("res render import");
-    // res.render("loadcontacts", {
-    //     loading: true
-    // });
-    // open a socket
-    //const io = socketIo();
-    dbFunctions.writeDateFile ();
-
-    //bClearedDB = false;
-    console.log("/contacts/import req.body: ", req.body);
-    console.log ("req.file: ", req.file);
-    console.log ('req.file.path: ', req.file.path);
-    if (req.body.clearDB === 'true') {
-        await dbConn.clearDB();
-        //bClearedDB = true;
-        // empty the database collection
-    }
-    if (req.body.clearCats === 'true') {
-        dbFunctions.deleteCatsFile();
-        // erase the categories file
-    }
-    //let fname = req.body.avatar.toLowerCase();
-    let fname = req.file.filename.toLowerCase();
-    console.log ("file name: ", fname);
-    if (req.body.csv === 'true') {
-        cjFns.csvJson(fname);
-    }
-    else {
-        vcfFns.vcfJson (fname);
-    }
-});
 
 router.get('/categories', async (req: any, res: any) => {
     console.log("server get cats");
@@ -80,6 +26,44 @@ router.get ('/loadDate', async (req: Request, res: any) => {
     console.log ("get load date");
     const date: string = dbFunctions.readDateFile();
     res.json (date);
+});
+
+
+router.get("/truck", async function (req: Request, res: any) {
+    console.log("get truck data");
+    console.log ('req.url: ', req.url);
+    let sSearch: string = req.url.split ('=')[1];
+    sSearch = decodeURIComponent (sSearch);
+    console.log ('sSearch: ', sSearch);
+
+    await dbConn.queryDB(sSearch).then(function (aoFound: any[]) {
+        // mongo returns an extra null element on the end of the array
+        // don't ask why howMany is done in such a weird way
+        // handlebars wasn't coping with an extra variable
+        if (aoFound.length === undefined || aoFound.length <= 1) { // none found
+            aoFound.length = 0;
+            aoFound.push({
+                TruckNum: "None found"
+            });
+            aoFound[0].howMany = 0; // don't count this one!
+        } else {
+            aoFound.length = aoFound.length - 1;        // take off the null at the end
+            //aoFound[0].howMany = aoFound.length;      // who knows?
+        }
+        console.log("aoF length: ", aoFound.length);
+        //console.log ("aoFound: ", aoFound);
+        for (let i: number = 0; i < aoFound.length; i++) {
+            aoFound[i].itemNum = i;
+        }
+        res.json({
+            aoFound
+        }); // and sends it
+    })
+        .catch(function (err: any) {
+            console.log(`queryDB error ${err}`);
+        });
+
+    return;
 });
 
 router.get("/contacts", async function (req: Request, res: any) {
@@ -164,16 +148,6 @@ router.get("/contacts", async function (req: Request, res: any) {
         for (let i: number = 0; i < aoFound.length; i++) {
             aoFound[i].itemNum = i;
         }
-        // aoFoundPeople = aoFound;
-        //        console.log("/contacts/search: ", aoFoundPeople);
-        // askFC(aoFound[0]['Phone1-Value']).then(function (picture) {
-        // res.render("index", {
-        //     search: true,
-        //     asPrevSearch: asPrev,
-        //     aoFound: aoFound,
-        //     showImage: false
-        // });
-        // });
         res.json({
             aoFound
         }); // and sends it

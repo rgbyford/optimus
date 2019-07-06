@@ -1,223 +1,103 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 const connFns = require("./connection");
-const serverFns = require('../server');
-let iBadOnes = 0;
-let iRows = 0;
-let aoContacts = [];
-let aasTagsMain = [
-    ['1', '1'],
-    ['event', 'event'],
-    ['los', 'los'],
-    ['mashable', 'mashable'],
-    ['PP', 'PP'],
-    ['seven-horizons', 'seven-horizons'],
-    ['via-ace', 'via-ace'],
-    ['x', 'x'],
-    ['pp', 'Prodigium'],
-    ['coc', 'Cinema of Change'],
-    ['dis', 'dis'],
-    ['ethn', 'ethnicity'],
-    ['gend', 'gender'],
-    ['intellectual', 'intellectual'],
-    ['id', 'ideology'],
-    ['lang', 'language spoken'],
-    ['loc', 'location'],
-    ['net', 'shared network'],
-    ['team', 'Prodigium worker'],
-    ['research', 'researcher'],
-    ['sport', 'sports pro'],
-    ['queer', 'neither']
-];
-let aoTagNames = [];
-for (let i = 0; i < aasTagsMain.length; i++) {
-    aoTagNames.push({
-        'sShortName': aasTagsMain[i][0],
-        'sLongName': aasTagsMain[i][1]
+var fs = require('fs');
+var path = require('path');
+function connectFn() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield connFns.connect();
     });
 }
-class AoCats {
-    constructor(sCat, sSubCat, iIndent) {
-        this.sIsSubCatOf = sCat;
-        this.sThisCat = sSubCat;
-        this.iIndent = iIndent;
-    }
-}
-let aoCatsRead;
-const fsDB = require("fs");
-let fdCats;
-function indexOfByKey(obj_list, key, value) {
-    for (let index = 0; index < obj_list.length; index++) {
-        if (obj_list[index][key] === value)
-            return index;
-    }
-    return -1;
-}
-module.exports.writeDateFile = function () {
-    const fdDate = fsDB.openSync('loaddate.txt', 'w');
-    let dDate = new Date();
-    let sDate;
-    console.log('sDate1: ', dDate);
-    sDate = dDate.toString().slice(4, 15);
-    console.log("sDate2:", sDate);
-    fsDB.writeFileSync(fdDate, sDate);
-    fsDB.closeSync(fdDate);
-};
-module.exports.readDateFile = function () {
-    const fdDate = fsDB.openSync('loaddate.txt', 'r');
-    const sDate = fsDB.readFileSync(fdDate, "utf8");
-    fsDB.closeSync(fdDate);
-    return (sDate);
-};
-function openCatsFile(mode) {
-    console.log("cwd:", process.cwd());
-    try {
-        fdCats = fsDB.openSync("./categories.txt", mode);
-    }
-    catch (err) {
-        console.log('Error opening cats file: ', err);
-    }
-}
-function writeCatsFile(aoCats) {
-    openCatsFile("w");
-    fsDB.writeFileSync(fdCats, JSON.stringify(aoCats));
-    fsDB.closeSync(fdCats);
-}
-module.exports.deleteCatsFile = function () {
-    fsDB.unlinkSync('categories.txt', (err) => {
-        if (err)
-            throw err;
-        console.log('categories file deleted');
-    });
-};
-module.exports.writeFile = function () {
-    console.log("wCF: ", aoCatsRead.length);
-    console.log("Bad tags: ", iBadOnes);
-    aoCatsRead.sort((a, b) => (a.sThisCat > b.sThisCat) ? 1 : (b.sThisCat > a.sThisCat) ? -1 : 0);
-    writeCatsFile(aoCatsRead);
-    iBadOnes = 0;
-};
-module.exports.readCatsFile = function () {
-    openCatsFile("a+");
-    console.log("readCatsFile: ", fdCats);
-    const sCats = fsDB.readFileSync(fdCats, "utf8");
-    if (sCats.length) {
-        aoCatsRead = JSON.parse(sCats);
-    }
-    else {
-        aoCatsRead = [];
-    }
-    fsDB.closeSync(fdCats);
-    return (aoCatsRead);
-};
-let contactsSource;
-module.exports.clearContacts = function (source) {
-    contactsSource = source;
-    aoContacts.length = 0;
-    connFns.prepLoad();
-};
-module.exports.pushContact = function (oContact) {
-    aoContacts.push(oContact);
-};
-var arrayUnique = function (arr) {
-    return arr.filter(function (item, index) {
-        return arr.indexOf(item) >= index;
-    });
-};
-function buildCategories(asTag) {
-    for (let i = 0; i < asTag.length; i++) {
-        if (asTag[i][0] !== ".") {
-            iBadOnes++;
-            continue;
-        }
-        asTag[i] = asTag[i].slice(1);
-        asTag[i] = asTag[i].replace("..", "_");
-        asTag[i] = asTag[i].replace("vendors", "vendor");
-        asTag[i] = asTag[i].replace(/\./g, "_");
-        let asCatSub = asTag[i].split("_");
-        let iTagPos = indexOfByKey(aoTagNames, 'sShortName', asCatSub[0]);
-        if (iTagPos >= 0) {
-            asCatSub[0] = aoTagNames[iTagPos].sLongName;
-        }
-        let sIsSubCatOf = "";
-        for (let j = 0; j < asCatSub.length; j++) {
-            let iCatFound;
-            iCatFound = aoCatsRead.findIndex(function (element) {
-                return (element.sThisCat === asCatSub[j]);
-            });
-            if (iCatFound < 0) {
-                aoCatsRead.push(new AoCats(sIsSubCatOf, asCatSub[j], j));
-            }
-            sIsSubCatOf = asCatSub[j];
+exports.connectFn = connectFn;
+;
+var aasTags = [[]];
+function readFuelFiles() {
+    console.log("Reading fuel files");
+    console.log("dir name: ", __dirname);
+    console.log("cwd: ", process.cwd());
+    let fdTags = fs.openSync(process.cwd() + '/tagstable.txt', 'a+');
+    console.log("fdTags: ", fdTags);
+    let sTagInfo = fs.readFileSync(fdTags, "utf8");
+    console.log("sTagInfo: ", sTagInfo);
+    let asTags = sTagInfo.split('\r\n');
+    console.log("asTags:", asTags, asTags.length);
+    for (let i = 0; i < asTags.length; i++) {
+        if (asTags[i].length > 0) {
+            let aSplit = asTags[i].split(' ');
+            console.log("aSplit:", aSplit);
+            aasTags.push(aSplit);
+            console.log("aasTags[i]:", aasTags[i]);
         }
     }
-}
-let iTotalRows;
-let iPercent = 0;
-module.exports.importNames = function (iCount = 0) {
-    if (iCount > 0) {
-        iTotalRows = iCount;
-        iPercent = 0;
-    }
-    if (aoContacts.length === 0) {
-        console.log(`Import names done - ${iTotalRows} rows`);
-        return;
-    }
-    var oContact = {};
-    oContact.id = 0;
-    const nestedContent = aoContacts[0];
-    Object.keys(nestedContent).forEach(docTitle => {
-        let givenName;
-        let sPropName;
-        sPropName = docTitle.replace(/ /g, "");
-        if (sPropName === "GivenName") {
-            givenName = nestedContent[docTitle];
-            oContact.GivenName = givenName;
+    aasTags.shift();
+    let moveFrom = "/home/rgbyford/fuelDC";
+    let moveTo = "/home/rgbyford/fuelDC/old";
+    console.log("readdir next");
+    fs.readdir(moveFrom, function (err, files) {
+        if (err) {
+            console.error("Could not list the directory.", err);
+            process.exit(1);
         }
-        else if (sPropName === "FamilyName") {
-            oContact.FamilyName = nestedContent[docTitle];
-        }
-        else if (sPropName === "GroupMembership") {
-            let asFirstSplit;
-            let asSecondSplit = [];
-            let sValue = nestedContent[docTitle];
-            asFirstSplit = sValue.split(contactsSource === 'CSV' ? ' ::: ' : ',');
-            asFirstSplit.sort();
-            for (let i = 0; i < asFirstSplit.length; i++) {
-                let sTemp;
-                if (asFirstSplit[i].indexOf(".loc_U") < 0) {
-                    sTemp = asFirstSplit[i].replace(".loc", "intl");
+        files.forEach(function (file, index) {
+            let fromPath = path.join(moveFrom, file);
+            let toPath = path.join(moveTo, file);
+            fs.stat(fromPath, function (error, stat) {
+                if (error) {
+                    console.error("Error stating file.", error);
+                    return;
                 }
-                else {
-                    sTemp = asFirstSplit[i];
-                }
-                if (sTemp[0] === '.') {
-                    sTemp = sTemp.slice(1);
-                }
-                asSecondSplit = asSecondSplit.concat(sTemp.split("_"));
-                for (let j = 0; j < asSecondSplit.length; j++) {
-                    let iTagPos = indexOfByKey(aoTagNames, 'sShortName', asSecondSplit[j]);
-                    if (iTagPos >= 0) {
-                        asSecondSplit[j] = aoTagNames[iTagPos].sLongName;
+                if (stat.isFile()) {
+                    console.log("'%s' is a file.", fromPath);
+                    let fdFuel = fs.openSync(fromPath, "a+");
+                    let iTruckNum;
+                    let tag = file.split('.');
+                    tag = tag[0].split('_');
+                    iTruckNum = -1;
+                    for (let i = 0; i < aasTags.length; i++) {
+                        if (tag[0] === aasTags[i][0]) {
+                            iTruckNum = parseInt(aasTags[i][1]);
+                            console.log("truck num: ", iTruckNum);
+                            break;
+                        }
                     }
+                    if (iTruckNum >= 0) {
+                        const sFuelInfo = fs.readFileSync(fdFuel, "utf8");
+                        if (sFuelInfo.length > 30) {
+                            console.log("sFuelInfo: ", sFuelInfo);
+                            let year = parseInt(sFuelInfo.substring(0, 4));
+                            let month = parseInt(sFuelInfo.substring(4, 6));
+                            let day = parseInt(sFuelInfo.substring(6, 8));
+                            let hour = parseInt(sFuelInfo.substring(8, 10));
+                            let minute = parseInt(sFuelInfo.substring(10, 12));
+                            let second = parseInt(sFuelInfo.substring(12, 14));
+                            let iClicks = parseInt(sFuelInfo.substring(39));
+                            let dRcdDate = new Date(year, month, day, hour, minute, second, 0);
+                            connFns.insertFuelRcd(iTruckNum, dRcdDate, iClicks);
+                        }
+                    }
+                    fs.closeSync(fdFuel);
+                    fs.rename(fromPath, toPath, function (error) {
+                        if (error) {
+                            console.error("File moving error:", error);
+                        }
+                        else {
+                            console.log("Moved file '%s' to '%s'.", fromPath, toPath);
+                        }
+                    });
                 }
-            }
-            buildCategories(asFirstSplit);
-            oContact[sPropName] = arrayUnique(asSecondSplit);
-        }
-        else {
-            let value = nestedContent[docTitle];
-            value = value.toString().replace(/[%,]/g, "");
-            if (nestedContent[docTitle] !== "") {
-                oContact[sPropName] = value;
-            }
-        }
+                else if (stat.isDirectory()) {
+                    console.log("'%s' is a directory.", fromPath);
+                }
+            });
+        });
     });
-    aoContacts.shift();
-    connFns.insertContact(oContact, aoContacts.length === 0);
-    if (iRows++ > iTotalRows / 50) {
-        iPercent += 2;
-        serverFns.sendProgress(iPercent.toString());
-        iRows = 0;
-    }
-    return;
-};
+}
 //# sourceMappingURL=database.js.map

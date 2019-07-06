@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/contacts/static/css/main.26a25a31.chunk.css",
-    "main.js": "/contacts/static/js/main.f5b83203.chunk.js",
-    "main.js.map": "/contacts/static/js/main.f5b83203.chunk.js.map",
-    "runtime~main.js": "/contacts/static/js/runtime~main.79ac44f6.js",
-    "runtime~main.js.map": "/contacts/static/js/runtime~main.79ac44f6.js.map",
-    "static/css/2.71916e70.chunk.css": "/contacts/static/css/2.71916e70.chunk.css",
-    "static/js/2.9ec4cfbb.chunk.js": "/contacts/static/js/2.9ec4cfbb.chunk.js",
-    "static/js/2.9ec4cfbb.chunk.js.map": "/contacts/static/js/2.9ec4cfbb.chunk.js.map",
-    "index.html": "/contacts/index.html",
-    "precache-manifest.e8dfe8b7fc8f63e4a0634ad0538d673d.js": "/contacts/precache-manifest.e8dfe8b7fc8f63e4a0634ad0538d673d.js",
-    "service-worker.js": "/contacts/service-worker.js",
-    "static/css/2.71916e70.chunk.css.map": "/contacts/static/css/2.71916e70.chunk.css.map",
-    "static/css/main.26a25a31.chunk.css.map": "/contacts/static/css/main.26a25a31.chunk.css.map",
-    "static/media/index.css": "/contacts/static/media/oriental.ca3ebe08.png"
+    "main.css": "/optimus/static/css/main.4fd9c07e.chunk.css",
+    "main.js": "/optimus/static/js/main.37761e52.chunk.js",
+    "main.js.map": "/optimus/static/js/main.37761e52.chunk.js.map",
+    "runtime~main.js": "/optimus/static/js/runtime~main.ddb78bee.js",
+    "runtime~main.js.map": "/optimus/static/js/runtime~main.ddb78bee.js.map",
+    "static/css/2.71916e70.chunk.css": "/optimus/static/css/2.71916e70.chunk.css",
+    "static/js/2.de62c4a9.chunk.js": "/optimus/static/js/2.de62c4a9.chunk.js",
+    "static/js/2.de62c4a9.chunk.js.map": "/optimus/static/js/2.de62c4a9.chunk.js.map",
+    "index.html": "/optimus/index.html",
+    "precache-manifest.076d2b7b5622d043f1ddfedb1bf2a971.js": "/optimus/precache-manifest.076d2b7b5622d043f1ddfedb1bf2a971.js",
+    "service-worker.js": "/optimus/service-worker.js",
+    "static/css/2.71916e70.chunk.css.map": "/optimus/static/css/2.71916e70.chunk.css.map",
+    "static/css/main.4fd9c07e.chunk.css.map": "/optimus/static/css/main.4fd9c07e.chunk.css.map",
+    "static/media/index.css": "/optimus/static/media/oriental.ca3ebe08.png"
   }
 }

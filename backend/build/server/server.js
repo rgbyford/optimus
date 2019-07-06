@@ -5,13 +5,15 @@ const path = require("path");
 const cors = require('cors');
 var parseUrl = require('parseurl');
 var resolvePath = require('resolve-path');
+let dbFns = require('./models/database');
 const dev = false;
-const port = 3600;
+const port = 3300;
 const socketPort = process.env.SOCKET || 9901;
 var app = require('express')();
 var http = require('http').Server(app);
 console.log("Socket port: ", socketPort);
 const routes = require("./routes/routes");
+dbFns.connectFn();
 app.all('*', function (req, res, next) {
     console.log('rp[0]', req.params[0]);
     console.log('path: ', req.path);

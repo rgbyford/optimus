@@ -4,11 +4,13 @@ const path = require ("path");
 //const serveStatic = require ("serve-static");
 const cors = require ('cors');
 //const dev = process.env.NODE_ENV !== 'production';
-var parseUrl = require('parseurl')
-var resolvePath = require('resolve-path')
+var parseUrl = require('parseurl');
+var resolvePath = require('resolve-path');
+let dbFns = require ('./models/database');
+
 const dev = false;
 //const port = process.env.PORT || 3600;
-const port = 3600;
+const port = 3300;
 const socketPort = process.env.SOCKET || 9901;
 //const ROOT_URL = dev ? `http://localhost:${port}` : `http://tobycontacts.ddns.net:${port}`;
 
@@ -20,6 +22,8 @@ console.log ("Socket port: ", socketPort);
 
 const routes: object = require("./routes/routes");
 //import { IncomingMessage } from 'http';
+
+dbFns.connectFn ();
 
 app.all('*', function (req: any, res: any, next: any) {
   console.log ('rp[0]', req.params[0]);

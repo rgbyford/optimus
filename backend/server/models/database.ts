@@ -1,304 +1,123 @@
 const connFns = require("./connection");
-const serverFns = require ('../server');
+//const serverFns = require ('../server');
 
-let iBadOnes = 0;
-let iRows = 0;
-let aoContacts: any[] = [];      // could have "any" properties, since read from vcf
-let aasTagsMain: string[][] = [
-    ['1', '1'],
-    ['event', 'event'],
-    ['los', 'los'],
-    ['mashable', 'mashable'],
-    ['PP', 'PP'],
-    ['seven-horizons', 'seven-horizons'],
-    ['via-ace', 'via-ace'],
-    ['x', 'x'],
-    ['pp', 'Prodigium'],
-    ['coc', 'Cinema of Change'],
-    ['dis', 'dis'],
-    ['ethn', 'ethnicity'],
-    ['gend', 'gender'],
-    ['intellectual', 'intellectual'],
-    ['id', 'ideology'],
-    ['lang', 'language spoken'],
-    ['loc', 'location'],
-    ['net', 'shared network'],
-    ['team', 'Prodigium worker'],
-    ['research', 'researcher'],
-    ['sport', 'sports pro'],
-    ['queer', 'neither']
-];
+var fs = require('fs');
+var path = require('path');
+// In newer Node.js versions where process is already global this isn't necessary.
+//var process = require("process");
 
-let aoTagNames: {sShortName: string, sLongName: string}[] = [];
 
-for (let i = 0; i < aasTagsMain.length; i++) {
-    aoTagNames.push({
-        'sShortName': aasTagsMain[i][0],
-        'sLongName': aasTagsMain[i][1]
+export async function connectFn() {
+    await connFns.connect();
+/*
+    let promise = new Promise((resolve, reject) => {
+        setTimeout(() => resolve("done!"), 2000)
     });
-}
-
-class AoCats {
-    sIsSubCatOf: string;
-    sThisCat: string;
-    iIndent: number;
-    constructor(sCat: string, sSubCat: string, iIndent: number) {
-        this.sIsSubCatOf = sCat;
-        this.sThisCat = sSubCat;
-        this.iIndent = iIndent;
-    }
-}
-
-let aoCatsRead: AoCats[];
-
-const fsDB: any = require("fs");
-let fdCats: number;
-
-function indexOfByKey(obj_list: any, key: string, value: any) {
-    for (let index = 0; index < obj_list.length; index++) {
-        if (obj_list[index][key] === value) return index;
-    }
-    return -1;
-}
-
-module.exports.writeDateFile = function () {
-    const fdDate = fsDB.openSync ('loaddate.txt', 'w');
-    let dDate: Date = new Date();
-    let sDate: string;
-    console.log ('sDate1: ', dDate);
-    sDate = dDate.toString().slice(4, 15);
-    console.log ("sDate2:", sDate);
-    fsDB.writeFileSync (fdDate, sDate);
-    fsDB.closeSync (fdDate);
-}
-
-module.exports.readDateFile = function () {
-    const fdDate = fsDB.openSync ('loaddate.txt', 'r');
-    const sDate = fsDB.readFileSync(fdDate, "utf8");
-    fsDB.closeSync (fdDate);
-    return (sDate);
-}
-
-// functions for dealing with the categories
-
-function openCatsFile(mode: string) {
-    console.log ("cwd:", process.cwd());
-    try {
-        fdCats = fsDB.openSync("./categories.txt", mode);
-    }
-    catch (err) {
-        console.log ('Error opening cats file: ', err);
-    }
-}
-
-function writeCatsFile(aoCats: any) {
-    openCatsFile("w");
-    fsDB.writeFileSync(fdCats, JSON.stringify(aoCats));
-    fsDB.closeSync(fdCats);
-}
-
-//export function deleteCatsFile () {
-module.exports.deleteCatsFile = function () {
-    fsDB.unlinkSync('categories.txt', (err: any) => {
-        if (err) throw err;
-        console.log('categories file deleted');
-    });
-}
-
-//export function writeFile () {
-module.exports.writeFile = function () {
-    console.log("wCF: ", aoCatsRead.length);
-    console.log("Bad tags: ", iBadOnes);
-    aoCatsRead.sort((a, b) => (a.sThisCat > b.sThisCat) ? 1 : (b.sThisCat > a.sThisCat) ? -1 : 0);
-    writeCatsFile(aoCatsRead);
-    iBadOnes = 0;
+    
+    let result = await promise; // wait till the promise resolves (*)
+//    await connFns.clearDB();
+    readFuelFiles();   need this!
+*/
 };
 
-module.exports.readCatsFile = function () {
-    openCatsFile("a+");
-    console.log ("readCatsFile: ", fdCats);
-    const sCats = fsDB.readFileSync(fdCats, "utf8");
-//    console.log ("sCats");
-    if (sCats.length) {
-        aoCatsRead = JSON.parse(sCats);
-    } else {
-        aoCatsRead = [];
-    }
-    fsDB.closeSync(fdCats);
-    return (aoCatsRead);
-};
+var aasTags: string[][] = [[]];
+//console.log ('ss:', aasTags);
+//aasTags[0] = ["string1", "string2"];
+//console.log ('ss 2nd attempt:', aasTags);
 
-let contactsSource: string;
-
-type oMod = {
-  [id: number]: number,
-  GivenName: string,
-  FamilyName: string,
-  "E-mail1-Value": string,
-  Photo1: string,
-  FC_ID1: string,
-  url: string
-};
-
-module.exports.clearContacts = function (source: string) {
-    contactsSource = source;
-    aoContacts.length = 0;
-    connFns.prepLoad();
-};
-
-//export function pushContact (oContact: oMod) {
-module.exports.pushContact = function (oContact: oMod) {
-    aoContacts.push(oContact);
-}
-
-var arrayUnique = function (arr: string[]) {
-    return arr.filter(function (item, index) {
-        return arr.indexOf(item) >= index;
-    });
-};
-
-function buildCategories(asTag: string[]) {
-    for (let i = 0; i < asTag.length; i++) {
-        // first, clean up the string
-        // ignore anything that doesn't begin with .
-        if (asTag[i][0] !== ".") {
-            //console.log ("continue");
-            iBadOnes++;
-            continue;
-        }
-        asTag[i] = asTag[i].slice(1); // remove the .
-        // replace .. with _
-        asTag[i] = asTag[i].replace("..", "_");
-        // replace vendors with vendor
-        asTag[i] = asTag[i].replace("vendors", "vendor");
-        // replace . with _
-        asTag[i] = asTag[i].replace(/\./g, "_");
-
-        // tag is now "_cat_subcat_subcat_subcat...
-        let asCatSub: string[] = asTag[i].split("_"); // Cat in the first element of the array, Subs in the others
-
-        // replace short category names with long
-        let iTagPos: number = indexOfByKey(aoTagNames, 'sShortName', asCatSub[0]);
-        // console.log ("iTP: ", iTagPos);
-        if (iTagPos >= 0) {
-            asCatSub[0] = aoTagNames[iTagPos].sLongName;
-            //console.log ("sTS: ", req.body.sValue[0], sSearch);            
-        }
-
-        let sIsSubCatOf = "";
-        for (let j = 0; j < asCatSub.length; j++) { // go through the cats & subCats
-            let iCatFound;
-            //            if (aoCatsRead.length === 0) {
-            //                iCatFound = -1;
-            //            } else {
-            //                console.log ("calling findIndex");
-            iCatFound = aoCatsRead.findIndex(function (element) {
-                return (element.sThisCat === asCatSub[j]);
-            });
-            //            }
-            //            console.log ("iCatFound: ", iCatFound);
-            if (iCatFound < 0) { // category doesn't exist - add it
-//                console.log("Found a new one", asCatSub[j]);
-                aoCatsRead.push(new AoCats(sIsSubCatOf, asCatSub[j], j));
+function readFuelFiles() {
+    console.log ("Reading fuel files");
+    console.log ("dir name: ", __dirname);
+    console.log ("cwd: ", process.cwd());    
+    let fdTags: number = fs.openSync(process.cwd() + '/tagstable.txt', 'a+');
+    console.log ("fdTags: ", fdTags);
+    let sTagInfo: string = fs.readFileSync (fdTags, "utf8");
+    console.log ("sTagInfo: ", sTagInfo);
+    let asTags: string[] = sTagInfo.split ('\r\n');
+    console.log ("asTags:", asTags, asTags.length);
+    for (let i = 0; i < asTags.length; i++) {
+        if (asTags[i].length > 0) {
+            let aSplit: string[] = asTags[i].split (' ');
+            if (aSplit.length === 3) {      // an "ADMIN X" truck
+                aSplit[1] = aSplit[3];      // set trucknum to X
             }
-            sIsSubCatOf = asCatSub[j];
+            console.log ("aSplit:", aSplit);
+            aasTags.push (aSplit);
+            console.log ("aasTags[i]:", aasTags[i]);
+            // will be tag in [0], truck num in [1]
         }
     }
-}
 
-let iTotalRows: number;
-let iPercent: number = 0;
+    aasTags.shift();        // remove the [[]]
 
-module.exports.importNames = function (iCount: number = 0) {
-//export function importNames (iCount: number = 0) {
-    //console.log ('aoClength: ', aoContacts.length);
-//    if (iCount) {
-//        iSavedCount = iCount;
-//    }
-    if (iCount > 0) {       // first call - others are recursive
-        iTotalRows = iCount;
-        iPercent = 0;
-    }
-    if (aoContacts.length === 0) { // done
-        console.log(`Import names done - ${iTotalRows} rows`);
-        //        document.body.style.cursor  = 'default';
-        return;
-    }
-    var oContact: any = {}; // have to do this to get oContact[sPropName] past TS
-    oContact.id = 0;
-    const nestedContent: any = aoContacts[0];
-    //console.log ('nnn', nestedContent);
-    //let docTitle: string;
-    Object.keys(nestedContent).forEach(docTitle => {
-        let givenName: string;
-        let sPropName: string;
-        //let sTemp: keyof typeof oContact;
-        //sTemp = docTitle.replace(/ /g, "");
-        sPropName = docTitle.replace(/ /g, "");
-        if (sPropName === "GivenName") {
-            givenName = nestedContent[docTitle];        // accessing property with []
-            oContact.GivenName = givenName;
-        } else if (sPropName === "FamilyName") {
-            oContact.FamilyName = nestedContent[docTitle];
-        } else if (sPropName === "GroupMembership") {
-            let asFirstSplit: string[];
-            let asSecondSplit: string[] = [];
-            let sValue = nestedContent[docTitle];
-            // VCF file splits tags with ',' - CSV file with ':::'
-            asFirstSplit = sValue.split(contactsSource === 'CSV' ? ' ::: ' : ',');
-            // sort them so they come out right when displayed
-            asFirstSplit.sort ();   // leaving out the params to get ascending ASCII sort
-            for (let i = 0; i < asFirstSplit.length; i++) {
-                let sTemp;
-                //if (asFirstSplit[i][0] === ".") {
-                //    asFirstSplit[i] = asFirstSplit[i].slice(1);
-                //}
-                // look for .locn and add "intl" if it"s not _USA
-                if (asFirstSplit[i].indexOf(".loc_U") < 0) {
-                    sTemp = asFirstSplit[i].replace(".loc", "intl");
-                } else {
-                    sTemp = asFirstSplit[i];
+    let moveFrom: string = "/home/rgbyford/fuelDC";
+    let moveTo: string = "/home/rgbyford/fuelDC/old";
+
+    console.log ("readdir next");
+    // Loop through all the files in the directory
+    fs.readdir(moveFrom, function (err: any, files: any[]) {
+//        console.log ("files: ", files);
+        if (err) {
+            console.error("Could not list the directory.", err);
+            process.exit(1);
+        }
+//        console.log ("file.foreach next");
+        files.forEach(function (file, index) {
+            let fromPath = path.join(moveFrom, file);
+            let toPath = path.join(moveTo, file);
+            fs.stat(fromPath, function (error: any, stat: any) {
+                if (error) {
+                    console.error("Error stating file.", error);
+                    return;
                 }
-                if (sTemp[0] === '.') { // remove .
-                    sTemp = sTemp.slice(1);
-                }
-                asSecondSplit = asSecondSplit.concat(sTemp.split("_"));
-                // replace short names with long
-                for (let j = 0; j < asSecondSplit.length; j++) {
-                    // replace short category names with long
-                    let iTagPos: number = indexOfByKey(aoTagNames, 'sShortName', asSecondSplit[j]);
-                    // console.log ("iTP: ", iTagPos);
-                    if (iTagPos >= 0) {
-                        asSecondSplit[j] = aoTagNames[iTagPos].sLongName;
-                        //console.log ("sTS: ", req.body.sValue[0], sSearch);            
+                //                console.log ("isFile next");
+                if (stat.isFile()) {
+                    console.log("'%s' is a file.", fromPath);
+                    let fdFuel: number = fs.openSync(fromPath, "a+");
+                    let iTruckNum: number;
+                    let tag: string[] = file.split('.');  // [0] is the tag number, plus the file number
+                    tag = tag[0].split('_');    // now tag[0] = just the tag number
+                    iTruckNum = -1;
+                    for (let i = 0; i < aasTags.length; i++) {
+                        if (tag[0] === aasTags[i][0]) {     // tags match
+                            iTruckNum = parseInt(aasTags[i][1]);
+                            console.log("truck num: ", iTruckNum);
+                            break;
+                        }
                     }
+                    //            console.log ("fs.stat next");
+                    if (iTruckNum >= 0) {
+                        const sFuelInfo = fs.readFileSync(fdFuel, "utf8");
+                        if (sFuelInfo.length > 30) {    // short files are old and have no info
+                            console.log("sFuelInfo: ", sFuelInfo);
+                            let year: number = parseInt(sFuelInfo.substring(0, 4));
+                            let month: number = parseInt(sFuelInfo.substring(4, 6));
+                            let day: number = parseInt(sFuelInfo.substring(6, 8));
+                            let hour: number = parseInt(sFuelInfo.substring(8, 10));
+                            let minute: number = parseInt(sFuelInfo.substring(10, 12));
+                            let second: number = parseInt(sFuelInfo.substring(12, 14));
+                            // file has the tag number in it, but we can ignore
+                            let iClicks: number = parseInt(sFuelInfo.substring(39));
+                            let dRcdDate: Date = new Date(year, month, day, hour, minute, second, 0);
+                            connFns.insertFuelRcd(iTruckNum, dRcdDate, iClicks);       // put it in the database
+                            //                    } else {
+                            //                        console.log ("Zero length file: ", fromPath);
+                            //                        aoCatsRead = [];
+                        }
+                    }
+                    fs.closeSync(fdFuel);
+                    fs.rename(fromPath, toPath, function (error: any) {
+                        if (error) {
+                            console.error("File moving error:", error);
+                        } else {
+                            console.log("Moved file '%s' to '%s'.", fromPath, toPath);
+                        }
+                    });
                 }
-            }
-            //console.log ("Calling buildCats");
-            buildCategories(asFirstSplit);
-            oContact[sPropName] = arrayUnique(asSecondSplit);
-        } else {
-            let value = nestedContent[docTitle];
-            //get rid of %, and the comma after thousands
-            value = value.toString().replace(/[%,]/g, "");
-            if (nestedContent[docTitle] !== "") {
-                oContact[sPropName] = value;
-            }
-        }
+                else if (stat.isDirectory()) {
+                    console.log("'%s' is a directory.", fromPath);
+                }
+            });
+        });
     });
-
-    // now put it into the database
-    aoContacts.shift(); // remove the one used
-//    console.log ("aoC length: ", aoContacts.length);
-    connFns.insertContact(oContact, aoContacts.length === 0); // iCount 0 except for first call
-    //iRows++;
-    if (iRows++ > iTotalRows / 50) {
-        // show progress every 2%
-        iPercent += 2;
-        //`console.log ('Progress: ', iPercent);
-        serverFns.sendProgress (iPercent.toString ());
-        iRows = 0;
-    }
-    return;
 }
-//}

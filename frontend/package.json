@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:3600/",
-  "homepage": "http://tobycontacts.ddns.net/contacts",
+  "homepage": "http://tobycontacts.ddns.net/optimus",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
@@ -39,6 +39,8 @@
     "react-data-grid": "^6.1.0",
     "react-dom": "^16.8.6",
     "react-ga": "^2.5.7",
+    "react-google-charts": "^3.0.13",
+    "react-load-script": "0.0.6",
     "react-modal-dialog": "^4.0.7",
     "react-router-dom": "^5.0.0",
     "react-scripts": "^3.0.0",

@@ -3,7 +3,7 @@ import 'isomorphic-fetch';
 const dev = false;
 //const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3600;
-const ROOT_URL = dev ? `http://localhost:${port}` : 'http://tobycontacts.ddns.net/contacts';
+const ROOT_URL = dev ? `http://localhost:${port}` : 'http://tobycontacts.ddns.net/optimus';
 //const ROOT_URL = `http://localhost:${port}`;
 //const ROOT_URL = '';
 console.log (`NODE_ENV: ${process.env.NODE_ENV} dev: ${dev}`);
@@ -64,4 +64,19 @@ export async function getContacts (asSearchStrings: string[]) {
 //    body: JSON.stringify ({'search': asSearchStrings}),
     method: 'GET'
   });
+}
+
+export async function getTruckData(iTruckNum: number) {
+  console.log("getTruckData: /truck");
+  let sQuery = '';
+  console.log('iTN: ', iTruckNum);
+  sQuery += iTruckNum.toString();
+  //  console.log ('string finish: ', iTruckNum);
+
+  const dbData = await sendRequest(`/truck?q=${sQuery}`, {
+    //    body: JSON.stringify ({'search': asSearchStrings}),
+    method: 'GET'
+  });
+  console.log('dbData:', dbData);
+  return (dbData.aoFound);    // aoFound object name set by backend
 }
