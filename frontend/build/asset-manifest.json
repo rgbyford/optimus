@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/optimus/static/css/main.4fd9c07e.chunk.css",
-    "main.js": "/optimus/static/js/main.37761e52.chunk.js",
-    "main.js.map": "/optimus/static/js/main.37761e52.chunk.js.map",
+    "main.js": "/optimus/static/js/main.2fbf375d.chunk.js",
+    "main.js.map": "/optimus/static/js/main.2fbf375d.chunk.js.map",
     "runtime~main.js": "/optimus/static/js/runtime~main.ddb78bee.js",
     "runtime~main.js.map": "/optimus/static/js/runtime~main.ddb78bee.js.map",
     "static/css/2.71916e70.chunk.css": "/optimus/static/css/2.71916e70.chunk.css",
     "static/js/2.de62c4a9.chunk.js": "/optimus/static/js/2.de62c4a9.chunk.js",
     "static/js/2.de62c4a9.chunk.js.map": "/optimus/static/js/2.de62c4a9.chunk.js.map",
     "index.html": "/optimus/index.html",
-    "precache-manifest.076d2b7b5622d043f1ddfedb1bf2a971.js": "/optimus/precache-manifest.076d2b7b5622d043f1ddfedb1bf2a971.js",
+    "precache-manifest.3b55045655686b64a52636feebeb7c11.js": "/optimus/precache-manifest.3b55045655686b64a52636feebeb7c11.js",
     "service-worker.js": "/optimus/service-worker.js",
     "static/css/2.71916e70.chunk.css.map": "/optimus/static/css/2.71916e70.chunk.css.map",
     "static/css/main.4fd9c07e.chunk.css.map": "/optimus/static/css/main.4fd9c07e.chunk.css.map",

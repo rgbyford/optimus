@@ -3,27 +3,20 @@ const connFns = require("./connection");
 
 var fs = require('fs');
 var path = require('path');
-// In newer Node.js versions where process is already global this isn't necessary.
-//var process = require("process");
-
 
 export async function connectFn() {
     await connFns.connect();
-/*
+
     let promise = new Promise((resolve, reject) => {
         setTimeout(() => resolve("done!"), 2000)
     });
     
     let result = await promise; // wait till the promise resolves (*)
 //    await connFns.clearDB();
-    readFuelFiles();   need this!
-*/
+    readFuelFiles();
 };
 
 var aasTags: string[][] = [[]];
-//console.log ('ss:', aasTags);
-//aasTags[0] = ["string1", "string2"];
-//console.log ('ss 2nd attempt:', aasTags);
 
 function readFuelFiles() {
     console.log ("Reading fuel files");
@@ -39,7 +32,7 @@ function readFuelFiles() {
         if (asTags[i].length > 0) {
             let aSplit: string[] = asTags[i].split (' ');
             if (aSplit.length === 3) {      // an "ADMIN X" truck
-                aSplit[1] = aSplit[3];      // set trucknum to X
+                aSplit[1] = aSplit[2];      // set trucknum to X
             }
             console.log ("aSplit:", aSplit);
             aasTags.push (aSplit);

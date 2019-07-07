@@ -14,6 +14,11 @@ var path = require('path');
 function connectFn() {
     return __awaiter(this, void 0, void 0, function* () {
         yield connFns.connect();
+        let promise = new Promise((resolve, reject) => {
+            setTimeout(() => resolve("done!"), 2000);
+        });
+        let result = yield promise;
+        readFuelFiles();
     });
 }
 exports.connectFn = connectFn;
@@ -32,6 +37,9 @@ function readFuelFiles() {
     for (let i = 0; i < asTags.length; i++) {
         if (asTags[i].length > 0) {
             let aSplit = asTags[i].split(' ');
+            if (aSplit.length === 3) {
+                aSplit[1] = aSplit[2];
+            }
             console.log("aSplit:", aSplit);
             aasTags.push(aSplit);
             console.log("aasTags[i]:", aasTags[i]);

@@ -77,6 +77,6 @@ export async function getTruckData(iTruckNum: number) {
     //    body: JSON.stringify ({'search': asSearchStrings}),
     method: 'GET'
   });
-  console.log('dbData:', dbData);
+  //console.log('dbData:', dbData);
   return (dbData.aoFound);    // aoFound object name set by backend
 }
