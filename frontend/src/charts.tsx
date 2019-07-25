@@ -4,10 +4,13 @@ import Header from './components/Header';
 import {Chart} from 'react-google-charts';
 import { getTruckData } from './public';
 import { string } from 'prop-types';
+import './static/index.css';
+import {OUserData, oUser, aiTruckList} from './App';
 
 let options = {
     title: "Truck data",
-    hAxis: { title: "DoY", viewWindow: { min: 100, max: 225 } },
+//    hAxis: { title: "DoY", viewWindow: { min: 100, max: 225 } },
+    hAxis: {format: 'MMM'},
     vAxis: { title: "Amount", viewWindow: { min: 0, max: 600 } },
     legend: "none"
   };
@@ -23,7 +26,7 @@ type ChartState = {
 
 const aMonthStarts: number[] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
 
-let aiTrucks = [3011523, 3011521, 3011522, 3011524, 3011881, 3011878, 3, 2, 1];       // 3,2,1 are the ADMIN trucks
+//let aiTrucks = [3011523, 3011521, 3011522, 3011524, 3011881, 3011878, 3, 2, 1];       // 3,2,1 are the ADMIN trucks
 
 const textStyle = {
   textAlign: 'left' as 'left',
@@ -33,7 +36,7 @@ const textStyle = {
 let sTruckSearch: any;
 let bGoButtonDone: boolean;
 
-export class Help extends React.Component<{}> {
+export class ChartsPage extends React.Component<{}> {
     state: ChartState;
     
     constructor(props: any) {
@@ -66,11 +69,16 @@ export class Help extends React.Component<{}> {
         //console.log('aoGD[0]:', aoGraphData[0]);
         for (let i = 0; i < aoTruckData.length; i++) {
             if (aoTruckData[i].TruckNum === iTruckNum) {    // always will be, except if none found
-                let pushArray: number[] = [];
+                let pushArray: any[] = [];
                 // have to deal with leap years
-                let iDayOfYear: number = aMonthStarts[parseInt(aoTruckData[i].DateTime.substring(5, 7)) - 1] +
-                parseInt(aoTruckData[i].DateTime.substring(8, 10));
-                pushArray[0] = iDayOfYear;
+//                let iDayOfYear: number = aMonthStarts[parseInt(aoTruckData[i].DateTime.substring(5, 7)) - 1] +
+//                parseInt(aoTruckData[i].DateTime.substring(8, 10));
+                let sToFormat = aoTruckData[i].DateTime;
+                console.log ('YYYY MM DD', sToFormat.substring(0,4), sToFormat.substring(5,7), sToFormat.substring(8,10));
+                pushArray[0] = new Date (parseInt (sToFormat.substring(0,4)),
+                                         parseInt (sToFormat.substring(5,7)) - 1,
+                                         parseInt (sToFormat.substring(8,10)));
+//                pushArray[0] = iDayOfYear;
                 pushArray[1] = aoTruckData[i].Amount;
                 aoGraphData.push(pushArray);
                 iRcds++;
@@ -78,11 +86,11 @@ export class Help extends React.Component<{}> {
             }
             // iRcds won't get incrmented if record TruckNum is "None found"
         }
-        if (iRcds > 0) {     // "set" the bar width!
-            for (iRcds; iRcds < 25; iRcds++) {
-                aoGraphData.push ([225 + iRcds, 0]);    // add a "don't show" record
-            }
-        }
+//        if (iRcds > 0) {     // "set" the bar width!
+//            for (iRcds; iRcds < 25; iRcds++) {
+//                aoGraphData.push ([225 + iRcds, 0]);    // add a "don't show" record
+//            }
+//        }
         bGoButtonDone = true;
         this.setState({ iTruckNum: iTruckNum, iRcds: iRcds });
         return;
@@ -101,16 +109,14 @@ export class Help extends React.Component<{}> {
             />
     )};
 
-    // need to be able to set location, and get truck numbers from that
-
     presentTrucks(state: any) {
         return (
             <div style={{ textAlign: 'center', margin: '0 20px' }}>
                 <strong>
-                    {<div><p style={textStyle}>Location: {'DC'}</p>
+                    {<div><br /><br /><p style={textStyle}>Location: {oUser.Location}</p><br /><br />
                      <select size={10} multiple={false}
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.ChooseTruck(e)}>
-                                    {aiTrucks.map((value2, index2) => <option key = {index2}> {value2} </option>)}
+                                    {aiTruckList.map((value2, index2) => <option key = {index2}> {value2} </option>)}
                     </select></div>
                     }
                     <br></br>
@@ -127,6 +133,6 @@ export class Help extends React.Component<{}> {
 
     render() {
         options.title = "Truck " + this.state.iTruckNum;
-        return (<div> {this.presentTrucks ({...this.state})} </div>);
+        return (<body><div> {this.presentTrucks ({...this.state})} </div></body>);
     };
 }

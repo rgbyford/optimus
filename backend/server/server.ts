@@ -1,3 +1,5 @@
+import { globalAgent } from "https";
+
 var express = require ('express');
 //import { nextTick } from "q";
 const path = require ("path");
@@ -7,6 +9,7 @@ const cors = require ('cors');
 var parseUrl = require('parseurl');
 var resolvePath = require('resolve-path');
 let dbFns = require ('./models/database');
+let connectionFns = require ('./models/connection');
 
 const dev = false;
 //const port = process.env.PORT || 3600;
@@ -22,8 +25,24 @@ console.log ("Socket port: ", socketPort);
 
 const routes: object = require("./routes/routes");
 //import { IncomingMessage } from 'http';
+var session = require('express-session');
 
-dbFns.connectFn ();
+/*
+class OUserDataTemp {
+  iId: number;
+  sEmail: string = 'rgb@globalAgent.com';
+  sLocation: string = 'any';
+  sPassword: string = '123';
+};
+*/
+
+async function connectToDB () {
+  //const oUser: OUserDataTemp = new OUserDataTemp ();
+  await dbFns.connectFn ();
+  //connectionFns.addUser (oUser);
+}
+
+connectToDB ();
 
 app.all('*', function (req: any, res: any, next: any) {
   console.log ('rp[0]', req.params[0]);
@@ -31,6 +50,7 @@ app.all('*', function (req: any, res: any, next: any) {
   next(); // pass control to the next handler
 });
 
+app.use(routes);
 app.use(cors());
 app.use(express.json());
 app.use(function (req: any, res: any, next: any) {
@@ -52,15 +72,20 @@ app.use(express.static(frontend));
 //console.log ('__dirname', __dirname, 'frontend: ', frontend);
 //console.log ("path.join(frontend)", path.join(frontend));
 //app.use(express.static(path.join(frontend)));
-app.use(routes);
 //  console.log("serve static: ", path.join(__dirname, 'public'));
 //  app.use(serveStatic(path.join(__dirname, 'public')));
-http.listen (port, (err: any) => {
-//http.createServer(function (req: any, res: any) {
+/*
+var accesslog = require ('access-log');
+http.createServer(function (req: any, res: any) {
+  accesslog (req, res);
+  res.end();
+}).listen(port, '0.0.0.0');
+*/
 //  res.sendFile (fullpath);
-  if (err) throw err;
-  console.log("> Ready on", port); // eslint-disable-line no-console
 //}).listen(3600);
+http.listen (port, (err: any) => {
+    if (err) throw err;
+    console.log("> Ready on", port); // eslint-disable-line no-console
 });
 
 app.get('/', function (req: any, res: any, next: any) {

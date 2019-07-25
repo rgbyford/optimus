@@ -13,7 +13,7 @@ export async function connectFn() {
     
     let result = await promise; // wait till the promise resolves (*)
 //    await connFns.clearDB();
-    readFuelFiles();
+//    readFuelFiles();
 };
 
 var aasTags: string[][] = [[]];
@@ -92,7 +92,7 @@ function readFuelFiles() {
                             // file has the tag number in it, but we can ignore
                             let iClicks: number = parseInt(sFuelInfo.substring(39));
                             let dRcdDate: Date = new Date(year, month, day, hour, minute, second, 0);
-                            connFns.insertFuelRcd(iTruckNum, dRcdDate, iClicks);       // put it in the database
+                            connFns.insertFuelRcd(iTruckNum, 'DC', dRcdDate, iClicks);       // put it in the database
                             //                    } else {
                             //                        console.log ("Zero length file: ", fromPath);
                             //                        aoCatsRead = [];

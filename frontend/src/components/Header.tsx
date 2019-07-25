@@ -4,7 +4,7 @@ import {Toolbar} from '@material-ui/core';
 import {Grid} from '@material-ui/core';
 import {Button} from '@material-ui/core';
 import { styleToolbar } from './SharedStyles';
-import '../index.css';
+import '../static/index.css';
 import {style} from "typestyle";
 
 const styles: {styleButton: {}} = {
@@ -30,7 +30,7 @@ const niceColors = style({
   }
 });
 
-const MyCharts = (props: any) => <Link to="/help" {...props} />
+const MyCharts = (props: any) => <Link to="/charts" {...props} />
 
 function Header() {
   return (

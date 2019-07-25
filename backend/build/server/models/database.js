@@ -18,7 +18,6 @@ function connectFn() {
             setTimeout(() => resolve("done!"), 2000);
         });
         let result = yield promise;
-        readFuelFiles();
     });
 }
 exports.connectFn = connectFn;
@@ -88,7 +87,7 @@ function readFuelFiles() {
                             let second = parseInt(sFuelInfo.substring(12, 14));
                             let iClicks = parseInt(sFuelInfo.substring(39));
                             let dRcdDate = new Date(year, month, day, hour, minute, second, 0);
-                            connFns.insertFuelRcd(iTruckNum, dRcdDate, iClicks);
+                            connFns.insertFuelRcd(iTruckNum, 'DC', dRcdDate, iClicks);
                         }
                     }
                     fs.closeSync(fdFuel);

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var express = require('express');
 const path = require("path");
@@ -6,6 +14,7 @@ const cors = require('cors');
 var parseUrl = require('parseurl');
 var resolvePath = require('resolve-path');
 let dbFns = require('./models/database');
+let connectionFns = require('./models/connection');
 const dev = false;
 const port = 3300;
 const socketPort = process.env.SOCKET || 9901;
@@ -13,12 +22,19 @@ var app = require('express')();
 var http = require('http').Server(app);
 console.log("Socket port: ", socketPort);
 const routes = require("./routes/routes");
-dbFns.connectFn();
+var session = require('express-session');
+function connectToDB() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield dbFns.connectFn();
+    });
+}
+connectToDB();
 app.all('*', function (req, res, next) {
     console.log('rp[0]', req.params[0]);
     console.log('path: ', req.path);
     next();
 });
+app.use(routes);
 app.use(cors());
 app.use(express.json());
 app.use(function (req, res, next) {
@@ -32,7 +48,6 @@ let frontend = __dirname.replace("back", "front");
 frontend = frontend.replace("/build/server", "");
 console.log("frontend: ", frontend);
 app.use(express.static(frontend));
-app.use(routes);
 http.listen(port, (err) => {
     if (err)
         throw err;
