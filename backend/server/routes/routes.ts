@@ -42,18 +42,21 @@ router.get('/login', async function (req: any, res: any, next: any) {
 });
   
 router.get ('/newPassword', async function (req: any, res: any, next: any) {
+    console.log ('new password');
     let sSearch: string = req.url.split ('?')[1];   // leaves q=email&pswd
     sSearch = decodeURIComponent (sSearch);
     let sParams: string[] = sSearch.split ('q=');
     sParams = sParams[1].split('&');
     let sEmail: string = sParams[0];
     let sNewPassword: string = sParams[1];
-    await dbConn.UpdateHash (sEmail, sNewPassword);
+    let sResult = await dbConn.UpdateHash (sEmail, sNewPassword);
+    console.log ('get new password - result', sResult);
+    res.json (sResult);    // sResult is email
     return;
 });
 
 router.get ('/addUser', async function (req: any, res: any, next: any) {
-    var oUser: OUserData;
+    var oUser: OUserData = {Email: "", Location: "", Hash: ""};
     // url is ?q=email&pswd&location
     let sSearch: string = req.url.split ('?')[1];   // leaves q=email&pswd
     sSearch = decodeURIComponent (sSearch);
@@ -61,7 +64,9 @@ router.get ('/addUser', async function (req: any, res: any, next: any) {
     sParams = sParams[1].split('&');
     oUser.Email = sParams[0];
     oUser.Location = sParams[2];
-    await dbConn.addUser (oUser, sParams[1]);
+    let oResult: any = await dbConn.addUser (oUser, sParams[1]);
+    console.log ('get addUser - result', oResult);
+    res.json (oResult);          // oResult is user
     return;
 });
 
@@ -98,7 +103,9 @@ router.get("/removeUser", async function (req: Request, res: any) {
     let sEmail: string = req.url.split ('=')[1];
     sEmail = decodeURIComponent (sEmail);
     console.log ('sEmail: ', sEmail);
-    await dbConn.removeUser (sEmail);
+    let oResult: any = await dbConn.removeUser (sEmail);
+    console.log (oResult);
+    res.json (oResult);
     return;
 });
   
@@ -109,6 +116,17 @@ router.get("/listTrucks", async function (req: Request, res: any) {
 
    await dbConn.queryDB('-1', sLocation, 'trucks').then(function (aoFound: any[]) {
        console.log (`Found ${aoFound.length} trucks.`)
+        res.json({
+            aoFound
+        });
+   });
+});
+
+router.get("/listUsers", async function (req: Request, res: any) {
+    console.log ("user list");
+
+   await dbConn.queryDB('-1', "", 'users').then(function (aoFound: any[]) {
+       console.log (`Found ${aoFound.length} users.`)
         res.json({
             aoFound
         });

@@ -1,4 +1,3 @@
-import { globalAgent } from "https";
 
 var express = require ('express');
 //import { nextTick } from "q";
@@ -9,7 +8,9 @@ const cors = require ('cors');
 var parseUrl = require('parseurl');
 var resolvePath = require('resolve-path');
 let dbFns = require ('./models/database');
-let connectionFns = require ('./models/connection');
+//let connectionFns = require ('./models/connection');
+import {updateRcds} from './models/connection';
+let schedule = require ('node-schedule');
 
 const dev = false;
 //const port = process.env.PORT || 3600;
@@ -111,6 +112,17 @@ app.get('/', function (req: any, res: any, next: any) {
       console.log("contacts sendFile done: ", req.params[0]);
 //  }
 });
+
+var rule = new schedule.RecurrenceRule();
+rule.hour = 5;
+
+var j = schedule.scheduleJob (rule, function() {
+  updateRcds ();
+  console.log('Read fuel files');
+});
+
+// schedule.scheduleJob('0 0 5 * * *', () => {updateRcds ();}) // run every day at midnight
+
 // starting express app
 //let socketapp = app.listen(port);
 //  io = require('socket.io').listen(socketapp);
@@ -141,5 +153,7 @@ module.exports.sendProgress = function (value: string) {
     progress: value
   });
 }
+
+
 
 export default app;

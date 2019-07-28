@@ -14,7 +14,8 @@ const cors = require('cors');
 var parseUrl = require('parseurl');
 var resolvePath = require('resolve-path');
 let dbFns = require('./models/database');
-let connectionFns = require('./models/connection');
+const connection_1 = require("./models/connection");
+let schedule = require('node-schedule');
 const dev = false;
 const port = 3300;
 const socketPort = process.env.SOCKET || 9901;
@@ -64,6 +65,12 @@ app.get('/', function (req, res, next) {
     console.log('frontend: ', frontend);
     res.sendFile(req.params[0], { root: frontend });
     console.log("contacts sendFile done: ", req.params[0]);
+});
+var rule = new schedule.RecurrenceRule();
+rule.hour = 5;
+var j = schedule.scheduleJob(rule, function () {
+    connection_1.updateRcds();
+    console.log('Read fuel files');
 });
 var ioApp = require('socket.io')(http);
 ioApp.on('connection', function (socket) {

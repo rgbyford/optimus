@@ -51,26 +51,31 @@ router.get('/login', function (req, res, next) {
 });
 router.get('/newPassword', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('new password');
         let sSearch = req.url.split('?')[1];
         sSearch = decodeURIComponent(sSearch);
         let sParams = sSearch.split('q=');
         sParams = sParams[1].split('&');
         let sEmail = sParams[0];
         let sNewPassword = sParams[1];
-        yield dbConn.UpdateHash(sEmail, sNewPassword);
+        let sResult = yield dbConn.UpdateHash(sEmail, sNewPassword);
+        console.log('get new password - result', sResult);
+        res.json(sResult);
         return;
     });
 });
 router.get('/addUser', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        var oUser;
+        var oUser = { Email: "", Location: "", Hash: "" };
         let sSearch = req.url.split('?')[1];
         sSearch = decodeURIComponent(sSearch);
         let sParams = sSearch.split('q=');
         sParams = sParams[1].split('&');
         oUser.Email = sParams[0];
         oUser.Location = sParams[2];
-        yield dbConn.addUser(oUser, sParams[1]);
+        let oResult = yield dbConn.addUser(oUser, sParams[1]);
+        console.log('get addUser - result', oResult);
+        res.json(oResult);
         return;
     });
 });
@@ -106,7 +111,9 @@ router.get("/removeUser", function (req, res) {
         let sEmail = req.url.split('=')[1];
         sEmail = decodeURIComponent(sEmail);
         console.log('sEmail: ', sEmail);
-        yield dbConn.removeUser(sEmail);
+        let oResult = yield dbConn.removeUser(sEmail);
+        console.log(oResult);
+        res.json(oResult);
         return;
     });
 });
@@ -117,6 +124,17 @@ router.get("/listTrucks", function (req, res) {
         console.log('sLocation: ', sLocation);
         yield dbConn.queryDB('-1', sLocation, 'trucks').then(function (aoFound) {
             console.log(`Found ${aoFound.length} trucks.`);
+            res.json({
+                aoFound
+            });
+        });
+    });
+});
+router.get("/listUsers", function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("user list");
+        yield dbConn.queryDB('-1', "", 'users').then(function (aoFound) {
+            console.log(`Found ${aoFound.length} users.`);
             res.json({
                 aoFound
             });

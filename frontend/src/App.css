@@ -32,9 +32,26 @@
   align-items: center;
 }
 
-input, button {
+input {
   margin: 8px;
-  width: 300px;
+  width: 200px;
+}
+
+button {
+  margin: 8px;
+  width: 100px;
+  align-self: center;
+}
+
+#label-style {
+  display: inline-block;
+  width: 140px;
+  text-align: right;
+  font-weight: bold;
+}​
+
+#heading-style {
+  font-weight: bold;
 }
 
 .App-error {

@@ -33,18 +33,18 @@ export async function connect() {
     return;
 }
 
-async function updateRcds() {
+export async function updateRcds () {
     if (iRcdCount > 0) {
         oTempUser.Email = 'rgb' + (10 - iRcdCount).toString() + '@test.com';
         let sHash = bcrypt.hashSync('123' + (10 - iRcdCount).toString(), 10);
         //console.log('hash:', sHash);
-        await doOne(sHash);
+        await updateSingleRcd(sHash);
         //console.log ('doOne done');
         iRcdCount--;
     }
 }
 
-function doOne(sHash: string) {
+function updateSingleRcd (sHash: string) {
     return new Promise((resolve: any, reject: any) => {
         let r = dbOptimus.collection("users").updateOne({ 'Email': oTempUser.Email },
             { $set: { 'Email': oTempUser.Email, 'Location': oTempUser.Location, 'Hash': sHash } },
@@ -105,25 +105,28 @@ module.exports.checkLogin = async function (sEmail: string, sPassword: string, f
 module.exports.addUser = async function (oUser: OUserData, sPassword: string) {
     let sHash: string = bcrypt.hashSync(sPassword, 10);
     console.log('password, hash:', sPassword, sHash);
-    try {
-        let r: any = await dbOptimus.collection("users").updateOne({ 'Email': oUser.Email },
+    return new Promise((resolve: any, reject: any) => {
+        let r = dbOptimus.collection("users").updateOne({ 'Email': oUser.Email },
             { $set: { 'Email': oUser.Email, 'Location': oUser.Location, 'Hash': sHash } },
-            { upsert: true }, () => {});
-        assert.equal(1, r.upsertedCount);
-    }
-    catch (e) {
-        console.log("db err:", e);
-    }
+            { upsert: true }, () => { });
+        resolve( oUser);
+    });
 }
 
 module.exports.removeUser = async function (sEmail: string) {
-    await dbOptimus.collection("users").remove({'Email': sEmail}, {});
+    return await dbOptimus.collection("users").deleteOne({'Email': sEmail}, {});
 }
 
 // used to change password
 module.exports.UpdateHash = async function (sEmail: string, sPassword: string) {
     let sHash: string = bcrypt.hashSync(sPassword, 10);
-    await dbOptimus.collection("users").updateOne({'Email': sEmail}, { $set: {'Hash': sHash}});
+    return new Promise((resolve: any, reject: any) => {
+        let r = dbOptimus.collection("users").updateOne({ 'Email': sEmail },
+            { $set: { 'Hash': sHash } }, {}, () => { });
+        resolve(sEmail);
+    });
+
+    //    await dbOptimus.collection("users").updateOne({'Email': sEmail}, { $set: {'Hash': sHash}});
     return;
 }
 
