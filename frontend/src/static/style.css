@@ -27,17 +27,23 @@ nav.vertical ul li{	display:block;}/* vertical menu */
 nav.horizontal ul li{	display: inline-block;}/* horizontal menu */
 img{max-width:100%;}
 /*--end reset--*/
+/*
 body {
     font-family: 'Jura', sans-serif;
     background:#0a4981;
 }
+*/
 h1 {
     color: #000;
     text-align: center;
     padding: 1em 0 0 0;
     font-size: 3em;
     font-weight: 700;
-}
+};
+
+h2 {
+    font-size: 25px;
+};
 /*-- main --*/
 /*
 .main {
@@ -50,23 +56,29 @@ h1 {
 }
 */
 /*--signin-form--*/
+/*    width: 48%; */
 #w3 {
     float: left;
-    width: 48%;
     margin-right: 4%;
-}
+};
 #agile {
     float: right;
     width: 48%;
 }
+/*    background: url(./banner1.jpg)no-repeat 0px 0px; */
 #signin-form {
-    background: url(./banner1.jpg)no-repeat 0px 0px;
     background-size: cover;
     padding: 2em 2em;
 	text-align: center;
-}
+};
 #signin-form h3 {
     font-size: 2em;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 1.5em;
+};
+#signin-form h2 {
+    font-size: 3em;
     color: #fff;
     font-weight: 700;
     margin-bottom: 1.5em;

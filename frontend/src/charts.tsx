@@ -1,13 +1,14 @@
-
 import * as React from 'react';
-import Header from './components/Header';
+//import Header from './components/Header';
 import {Chart} from 'react-google-charts';
 import { getTruckData } from './public';
-import { string } from 'prop-types';
+//import { string } from 'prop-types';
 import './static/index.css';
-import {OUserData, oUser, aiTruckList} from './App';
+import {oUser, aiTruckList} from './App';
+import { LinkContainer } from 'react-router-bootstrap';
+import Button from 'react-bootstrap/Button';
 
-let iHAMax: any;    // can't use Date
+//let iHAMax: any;    // can't use Date
 let iHAMin: any;
 let dTestDate = new Date (2019, 1, 1);
 let options = {
@@ -29,14 +30,15 @@ type ChartState = {
     iRcds: number
 };
 
-const aMonthStarts: number[] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+//const aMonthStarts: number[] = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
 
 //let aiTrucks = [3011523, 3011521, 3011522, 3011524, 3011881, 3011878, 3, 2, 1];       // 3,2,1 are the ADMIN trucks
-
+/*
 const textStyle = {
   textAlign: 'left' as 'left',
   marginLeft: '45%'
 }
+*/
 const headingStyle = {
   fontWeight: 700
 }
@@ -136,16 +138,23 @@ export class ChartsPage extends React.Component<{}> {
     presentTrucks(state: any) {
         return (
             <div style={{ textAlign: 'center', margin: '20px 20px' }}>
+                <br />
                     {<div><h3 style={headingStyle}>Location: {oUser.Location}</h3>
+                    <br />
                      <select size={10} multiple={false}
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.ChooseTruck(e)}>
                                     {aiTruckList.map((value2, index2) => <option key = {index2}> {value2} </option>)}
                     </select></div>
                     }
-                    <br></br>
+                    <br />
                     <div>{bGoButtonDone && this.state.iRcds > 0 ?
                          this.TruckChart (this.state.iTruckNum) : this.state.iRcds === 0 ?
                           'No data' : ''}</div>
+                          <br />
+                <LinkContainer to="/optimus">
+                  <Button>Back</Button>
+                </LinkContainer>
+ 
             </div>
         )
     };

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.0/workbox-sw.js");
 
 importScripts(
-  "/optimus/precache-manifest.c789317a42321494817164bb7abdf7ec.js"
+  "/optimus/precache-manifest.3764b453abdf62a69cadee0e619588b6.js"
 );
 
 self.addEventListener('message', (event) => {

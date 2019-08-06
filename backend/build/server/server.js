@@ -8,13 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const database_1 = require("./models/database");
 var express = require('express');
 const path = require("path");
 const cors = require('cors');
 var parseUrl = require('parseurl');
 var resolvePath = require('resolve-path');
 let dbFns = require('./models/database');
-const connection_1 = require("./models/connection");
 let schedule = require('node-schedule');
 const dev = false;
 const port = 3300;
@@ -68,8 +68,9 @@ app.get('/', function (req, res, next) {
 });
 var rule = new schedule.RecurrenceRule();
 rule.hour = 5;
+rule.dayOfWeek = new schedule.Range(0, 6);
 var j = schedule.scheduleJob(rule, function () {
-    connection_1.updateRcds();
+    database_1.readFuelFiles();
     console.log('Read fuel files');
 });
 var ioApp = require('socket.io')(http);

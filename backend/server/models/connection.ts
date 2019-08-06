@@ -2,7 +2,7 @@
 const MongoClient = require ('mongodb').MongoClient;
 const dbName = "optimus";
 let dbOptimus: any;
-const url = "mongodb://localhost:27017";
+const url = "mongodb://localhost:53092";
 const bcrypt = require('bcrypt');
 const assert = require ('assert');
 
@@ -12,6 +12,12 @@ export type OUserData = {
     Location: string;
     Hash: string;
 };
+
+export type OPriceData = {
+    Location: string;
+    Price: number;
+    Date: string;
+}
 
 let oTempUser: OUserData = {Email: 'rgb@test.com', Location: 'any', Hash: ''};
 let iRcdCount: number;
@@ -56,6 +62,20 @@ function updateSingleRcd (sHash: string) {
 function updateOneCallback() {
     updateRcds();
     //console.log('iOCB');
+}
+
+module.exports.addPrice = async function (oPriceInfo: OPriceData) {
+    return new Promise((resolve: any, reject: any) => {
+        let r = dbOptimus.collection("prices").updateOne({ 'Date': oPriceInfo.Date, 'Location': oPriceInfo.Location },
+            { $set: { 'Date': oPriceInfo.Date, 'Location': oPriceInfo.Location, 'Price': oPriceInfo.Price } },
+            { upsert: true }, () => { });
+        resolve( oPriceInfo);
+    });
+}
+
+export async function deletePrice (sLocation: string, sDate: string) {
+    return await dbOptimus.collection("prices").deleteOne({'Location': sLocation, 'Date': sDate}, {});
+
 }
 
 //module.exports.clearDB = async function () {
@@ -117,6 +137,10 @@ module.exports.removeUser = async function (sEmail: string) {
     return await dbOptimus.collection("users").deleteOne({'Email': sEmail}, {});
 }
 
+module.exports.removePrice = async function (sLocation: string, sDate: string) {
+    return await dbOptimus.collection("prices").deleteOne({'Location': sLocation, 'Date': sDate}, {});
+}
+
 // used to change password
 module.exports.UpdateHash = async function (sEmail: string, sPassword: string) {
     let sHash: string = bcrypt.hashSync(sPassword, 10);
@@ -137,8 +161,10 @@ module.exports.queryDB = async function (sToFindFirst: string, sToFindSecond: st
     let iTruckNum: number = 0;
     let oSearchLoc: object;
     
+    console.log (`sTFF: ${sToFindFirst}, sTFS: ${sToFindSecond}, sCollection: ${sCollection}`);
     if (sCollection === 'trucks') {
         iTruckNum = parseInt(sToFindFirst);
+        console.log ('iTruckNum:', iTruckNum);
         if (iTruckNum >= 0) {
             if (sToFindSecond === 'any') {
                 oSearch = {TruckNum: { $eq: iTruckNum }};
@@ -147,18 +173,20 @@ module.exports.queryDB = async function (sToFindFirst: string, sToFindSecond: st
                 oSearch = {TruckNum: { $eq: iTruckNum }, Location: { $eq: sToFindSecond }};
             }
                 // will screw up if trucks at different locations have the same numbers
-            oToReturn = { TruckNum: 1, DateTime: 1, Location: 1, Amount: 1 };      
         }
         else {        // TruckNum -1 = all trucks at location (which could be 'any')
             if (sToFindSecond === 'any') {
                 oSearchLoc = {};
             }
-            else {
-                oSearchLoc = {Location: sToFindSecond};
+            else {      // for finding all fuelings at a location - to make a price file
+                        // or for finding all trucks at a location - for charts select box
+                oSearchLoc = {Location: sToFindSecond};     // for charts select box list
+                oSearch = {Location: sToFindSecond};        // for price file
             }
         }
+        oToReturn = { TruckNum: 1, Tag: 1, DateTime: 1, Location: 1, Amount: 1 };      
     }
-    else {
+    else if (sCollection === 'users') {
         if (sToFindFirst === '') {          // all users
             oSearch = {};
         }
@@ -170,9 +198,14 @@ module.exports.queryDB = async function (sToFindFirst: string, sToFindSecond: st
         oToReturn = { Email: 1, Location: 1, sHash: 1 };
         iTruckNum = 0;             // a cheat
     }
+    else {         // is bio prices collection
+        oSearch = {Location: {$eq: sToFindSecond}};
+        oToReturn = { Price: 1, Date: 1, Location: 1 };
+        iTruckNum = 0;
+    }
     console.log('oSearch:', oSearch);
     return new Promise(async (resolve: any) => {
-        if (iTruckNum >= 0) {
+        if (iTruckNum >= 0 || iTruckNum === -2) {       // -2 is rcds to write price file
             let cursor = await dbOptimus.collection(sCollection).find(oSearch).project(oToReturn);
             //console.log ('queryDB cursor: ', cursor);
             let itemCount: number = 0;
@@ -193,7 +226,7 @@ module.exports.queryDB = async function (sToFindFirst: string, sToFindSecond: st
             console.log("end of queryDB - found: ", aoFound.length);
             //        resolve (aoFound);
         }
-        else {
+        else {      // iTruckNum == -1 - find the truck numbers for the charts select truck box
             console.log ("looking for distinct on ", oSearchLoc);
             await dbOptimus.collection(sCollection).distinct('TruckNum', oSearchLoc, (err: any, asTruckNums: string[]) => {
                 console.log ('err:', err);
@@ -208,13 +241,13 @@ let iRowsCBCount: number = 0;
 let iRowsNBad: number = 0;
 let iRowsResultBad: number = 0;
 
-module.exports.insertFuelRcd = function (iTruckNum: number, sLocation: string, dateTime: Date, clicks: number) {
+module.exports.insertFuelRcd = function (iTruckNum: number, sTag: string, sLocation: string, dateTime: Date, clicks: number) {
     dbOptimus.collection("trucks").updateOne({
         'Location': sLocation,
         'TruckNum': iTruckNum,
         'DateTime': dateTime
     }, {
-        $set: {'Location': sLocation, 'TruckNum': iTruckNum, 'DateTime': dateTime, 'Amount': clicks}
+        $set: {'Location': sLocation, 'TruckNum': iTruckNum, 'Tag': sTag, 'DateTime': dateTime, 'Amount': clicks}
     }, {
         upsert: true
     }, insertRcdCallback);

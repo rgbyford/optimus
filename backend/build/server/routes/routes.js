@@ -117,6 +117,52 @@ router.get("/removeUser", function (req, res) {
         return;
     });
 });
+router.get("/listPrices", function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let sLocation = req.url.split('=')[1];
+        sLocation = decodeURIComponent(sLocation);
+        console.log('sLocation: ', sLocation);
+        yield dbConn.queryDB('-1', sLocation, 'prices').then(function (aoFound) {
+            aoFound.length = aoFound.length - 1;
+            console.log(`Found ${aoFound.length} prices.`);
+            res.json({
+                aoFound
+            });
+        });
+        return;
+    });
+});
+router.get("/removePrice", function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("remove price");
+        let sSearch = req.url.split('?')[1];
+        sSearch = decodeURIComponent(sSearch);
+        let sParams = sSearch.split('q=');
+        sParams = sParams[1].split('&');
+        let sLocation = sParams[0];
+        let sDate = sParams[1];
+        console.log('Removing price:', sLocation, sDate);
+        let oRes = yield dbConn.removePrice(sLocation, sDate);
+        res.json(oRes.result);
+        return;
+    });
+});
+router.get('/addPrice', function (req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var oPriceInfo = { Location: "", Price: 0, Date: "" };
+        let sSearch = req.url.split('?')[1];
+        sSearch = decodeURIComponent(sSearch);
+        let sParams = sSearch.split('q=');
+        sParams = sParams[1].split('&');
+        oPriceInfo.Location = sParams[0];
+        oPriceInfo.Price = parseFloat(sParams[1]);
+        oPriceInfo.Date = sParams[2];
+        let oResult = yield dbConn.addPrice(oPriceInfo);
+        console.log('get addPrice - result', oResult);
+        res.json(oResult);
+        return;
+    });
+});
 router.get("/listTrucks", function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let sLocation = req.url.split('=')[1];
@@ -159,6 +205,27 @@ router.get("/truck", function (req, res) {
             else {
                 aoFound.length = aoFound.length - 1;
             }
+            console.log("aoF length: ", aoFound.length);
+            for (let i = 0; i < aoFound.length; i++) {
+                aoFound[i].itemNum = i;
+            }
+            res.json({ aoFound });
+        })
+            .catch(function (err) {
+            console.log(`queryDB error ${err}`);
+        });
+        return;
+    });
+});
+router.get("/fuel", function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("get fueling data");
+        console.log('req.url: ', req.url);
+        let sSearch = req.url.split('=')[1];
+        sSearch = decodeURIComponent(sSearch);
+        console.log('sSearch: ', sSearch);
+        yield dbConn.queryDB('-2', sSearch, 'trucks').then(function (aoFound) {
+            aoFound.length = aoFound.length - 1;
             console.log("aoF length: ", aoFound.length);
             for (let i = 0; i < aoFound.length; i++) {
                 aoFound[i].itemNum = i;

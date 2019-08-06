@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const MongoClient = require('mongodb').MongoClient;
 const dbName = "optimus";
 let dbOptimus;
-const url = "mongodb://localhost:27017";
+const url = "mongodb://localhost:53092";
 const bcrypt = require('bcrypt');
 const assert = require('assert');
 let oTempUser = { Email: 'rgb@test.com', Location: 'any', Hash: '' };
@@ -54,6 +54,20 @@ function updateSingleRcd(sHash) {
 function updateOneCallback() {
     updateRcds();
 }
+module.exports.addPrice = function (oPriceInfo) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            let r = dbOptimus.collection("prices").updateOne({ 'Date': oPriceInfo.Date, 'Location': oPriceInfo.Location }, { $set: { 'Date': oPriceInfo.Date, 'Location': oPriceInfo.Location, 'Price': oPriceInfo.Price } }, { upsert: true }, () => { });
+            resolve(oPriceInfo);
+        });
+    });
+};
+function deletePrice(sLocation, sDate) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield dbOptimus.collection("prices").deleteOne({ 'Location': sLocation, 'Date': sDate }, {});
+    });
+}
+exports.deletePrice = deletePrice;
 function clearDB() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -118,6 +132,11 @@ module.exports.removeUser = function (sEmail) {
         return yield dbOptimus.collection("users").deleteOne({ 'Email': sEmail }, {});
     });
 };
+module.exports.removePrice = function (sLocation, sDate) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield dbOptimus.collection("prices").deleteOne({ 'Location': sLocation, 'Date': sDate }, {});
+    });
+};
 module.exports.UpdateHash = function (sEmail, sPassword) {
     return __awaiter(this, void 0, void 0, function* () {
         let sHash = bcrypt.hashSync(sPassword, 10);
@@ -135,8 +154,10 @@ module.exports.queryDB = function (sToFindFirst, sToFindSecond, sCollection) {
         let aoFound = [{}];
         let iTruckNum = 0;
         let oSearchLoc;
+        console.log(`sTFF: ${sToFindFirst}, sTFS: ${sToFindSecond}, sCollection: ${sCollection}`);
         if (sCollection === 'trucks') {
             iTruckNum = parseInt(sToFindFirst);
+            console.log('iTruckNum:', iTruckNum);
             if (iTruckNum >= 0) {
                 if (sToFindSecond === 'any') {
                     oSearch = { TruckNum: { $eq: iTruckNum } };
@@ -144,7 +165,6 @@ module.exports.queryDB = function (sToFindFirst, sToFindSecond, sCollection) {
                 else {
                     oSearch = { TruckNum: { $eq: iTruckNum }, Location: { $eq: sToFindSecond } };
                 }
-                oToReturn = { TruckNum: 1, DateTime: 1, Location: 1, Amount: 1 };
             }
             else {
                 if (sToFindSecond === 'any') {
@@ -152,10 +172,12 @@ module.exports.queryDB = function (sToFindFirst, sToFindSecond, sCollection) {
                 }
                 else {
                     oSearchLoc = { Location: sToFindSecond };
+                    oSearch = { Location: sToFindSecond };
                 }
             }
+            oToReturn = { TruckNum: 1, Tag: 1, DateTime: 1, Location: 1, Amount: 1 };
         }
-        else {
+        else if (sCollection === 'users') {
             if (sToFindFirst === '') {
                 oSearch = {};
             }
@@ -167,9 +189,14 @@ module.exports.queryDB = function (sToFindFirst, sToFindSecond, sCollection) {
             oToReturn = { Email: 1, Location: 1, sHash: 1 };
             iTruckNum = 0;
         }
+        else {
+            oSearch = { Location: { $eq: sToFindSecond } };
+            oToReturn = { Price: 1, Date: 1, Location: 1 };
+            iTruckNum = 0;
+        }
         console.log('oSearch:', oSearch);
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            if (iTruckNum >= 0) {
+            if (iTruckNum >= 0 || iTruckNum === -2) {
                 let cursor = yield dbOptimus.collection(sCollection).find(oSearch).project(oToReturn);
                 let itemCount = 0;
                 yield cursor.each(function (err, item) {
@@ -202,13 +229,13 @@ module.exports.queryDB = function (sToFindFirst, sToFindSecond, sCollection) {
 let iRowsCBCount = 0;
 let iRowsNBad = 0;
 let iRowsResultBad = 0;
-module.exports.insertFuelRcd = function (iTruckNum, sLocation, dateTime, clicks) {
+module.exports.insertFuelRcd = function (iTruckNum, sTag, sLocation, dateTime, clicks) {
     dbOptimus.collection("trucks").updateOne({
         'Location': sLocation,
         'TruckNum': iTruckNum,
         'DateTime': dateTime
     }, {
-        $set: { 'Location': sLocation, 'TruckNum': iTruckNum, 'DateTime': dateTime, 'Amount': clicks }
+        $set: { 'Location': sLocation, 'TruckNum': iTruckNum, 'Tag': sTag, 'DateTime': dateTime, 'Amount': clicks }
     }, {
         upsert: true
     }, insertRcdCallback);

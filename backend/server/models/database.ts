@@ -18,7 +18,7 @@ export async function connectFn() {
 
 var aasTags: string[][] = [[]];
 
-function readFuelFiles() {
+export async function readFuelFiles() {
     console.log ("Reading fuel files");
     console.log ("dir name: ", __dirname);
     console.log ("cwd: ", process.cwd());    
@@ -92,7 +92,7 @@ function readFuelFiles() {
                             // file has the tag number in it, but we can ignore
                             let iClicks: number = parseInt(sFuelInfo.substring(39));
                             let dRcdDate: Date = new Date(year, month, day, hour, minute, second, 0);
-                            connFns.insertFuelRcd(iTruckNum, 'DC', dRcdDate, iClicks);       // put it in the database
+                            connFns.insertFuelRcd(iTruckNum, tag[0], 'DC', dRcdDate, iClicks);       // put it in the database
                             //                    } else {
                             //                        console.log ("Zero length file: ", fromPath);
                             //                        aoCatsRead = [];

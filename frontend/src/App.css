@@ -37,16 +37,16 @@ input {
   width: 200px;
 }
 
+/*  width: 100px;*/
 button {
   margin: 8px;
-  width: 100px;
   align-self: center;
 }
 
 #label-style {
   display: inline-block;
-  width: 140px;
-  text-align: right;
+  width: 80px;
+  text-align: left;
   font-weight: bold;
 }​
 

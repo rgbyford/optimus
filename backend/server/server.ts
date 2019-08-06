@@ -1,3 +1,4 @@
+import {readFuelFiles} from './models/database';
 
 var express = require ('express');
 //import { nextTick } from "q";
@@ -115,9 +116,10 @@ app.get('/', function (req: any, res: any, next: any) {
 
 var rule = new schedule.RecurrenceRule();
 rule.hour = 5;
+rule.dayOfWeek = new schedule.Range(0,6);
 
 var j = schedule.scheduleJob (rule, function() {
-  updateRcds ();
+  readFuelFiles ();
   console.log('Read fuel files');
 });
 

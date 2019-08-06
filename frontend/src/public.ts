@@ -51,6 +51,13 @@ export async function getUserList () {
   });
 }
 
+export async function getBioPrices (sLocation: string) {
+  console.log ('getBioPrices');
+  return await sendRequest(`/listPrices?q=${sLocation}`, {
+    method: 'GET',
+  });
+}
+
 export async function getLoadDate () {
   console.log ("getLoadDate");
   return await sendRequest('/loadDate', {
@@ -66,6 +73,17 @@ export async function getTruckData(iTruckNum: number) {
   //  console.log ('string finish: ', iTruckNum);
 
   const dbData: any = await sendRequest(`/truck?q=${sQuery}`, {
+    //    body: JSON.stringify ({'search': asSearchStrings}),
+    method: 'GET'
+  });
+  //console.log('dbData:', dbData);
+  return (dbData.aoFound);    // aoFound object name set by backend
+}
+
+export async function getFuelingData(sLocation: string) {
+  console.log("getFuelingData");
+  let sQuery = sLocation;
+  const dbData: any = await sendRequest(`/fuel?q=${sQuery}`, {
     //    body: JSON.stringify ({'search': asSearchStrings}),
     method: 'GET'
   });

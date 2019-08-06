@@ -1,17 +1,16 @@
 {
   "files": {
-    "main.css": "/optimus/static/css/main.d3ec403b.chunk.css",
-    "main.js": "/optimus/static/js/main.043c25e3.chunk.js",
-    "main.js.map": "/optimus/static/js/main.043c25e3.chunk.js.map",
+    "main.css": "/optimus/static/css/main.af082a67.chunk.css",
+    "main.js": "/optimus/static/js/main.b83afe9a.chunk.js",
+    "main.js.map": "/optimus/static/js/main.b83afe9a.chunk.js.map",
     "runtime~main.js": "/optimus/static/js/runtime~main.ddb78bee.js",
     "runtime~main.js.map": "/optimus/static/js/runtime~main.ddb78bee.js.map",
-    "static/js/2.1ebec6a9.chunk.js": "/optimus/static/js/2.1ebec6a9.chunk.js",
-    "static/js/2.1ebec6a9.chunk.js.map": "/optimus/static/js/2.1ebec6a9.chunk.js.map",
+    "static/js/2.d64b42af.chunk.js": "/optimus/static/js/2.d64b42af.chunk.js",
+    "static/js/2.d64b42af.chunk.js.map": "/optimus/static/js/2.d64b42af.chunk.js.map",
     "index.html": "/optimus/index.html",
-    "precache-manifest.c789317a42321494817164bb7abdf7ec.js": "/optimus/precache-manifest.c789317a42321494817164bb7abdf7ec.js",
+    "precache-manifest.3764b453abdf62a69cadee0e619588b6.js": "/optimus/precache-manifest.3764b453abdf62a69cadee0e619588b6.js",
     "service-worker.js": "/optimus/service-worker.js",
-    "static/css/main.d3ec403b.chunk.css.map": "/optimus/static/css/main.d3ec403b.chunk.css.map",
-    "static/media/style.css": "/optimus/static/media/banner1.e6c272bb.jpg",
+    "static/css/main.af082a67.chunk.css.map": "/optimus/static/css/main.af082a67.chunk.css.map",
     "static/media/index.css": "/optimus/static/media/oriental.ca3ebe08.png"
   }
 }

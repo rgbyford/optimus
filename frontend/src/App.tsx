@@ -1,11 +1,16 @@
 import * as React from 'react';
 import {Link, RouteComponentProps} from 'react-router-dom';
 import ReactGA from 'react-ga';
-import {Button} from '@material-ui/core';
-import { sendRequest, getTruckList, getUserList } from './public';
+//import {Button} from '@material-ui/core';
+import { sendRequest, getTruckList, getUserList, getBioPrices } from './public';
 import './App.css';
 import './static/style.css';
 import './static/index.css';
+import { LinkContainer } from 'react-router-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import  Col from 'react-bootstrap/Col';
 
 ReactGA.initialize('UA-141951386-1');
 ReactGA.pageview(window.location.pathname + window.location.search);
@@ -22,21 +27,39 @@ export type OUserData = {
 const textStyle = {
   textAlign: 'left' as 'left',
   marginLeft: '5%'
-}
+};
 
 const inputStyle = {
   width: '200px'
-}
+};
 //  float: 'right' as 'right'
 
 const headingStyle = {
   fontWeight: 700
-}
+};
+
+const h2Style = {
+  fontSize: '25px',
+  fontWeight: 700
+};
+
+const headingInlineBlockStyle = {
+  fontWeight: 700,
+  display: 'inline-block'
+};
 
 const buttonStyle = {
-  marginLeft: '40%'
-}
+  marginLeft: '1%'
+};
 
+const leftMargin = {
+ marginLeft: "10%"
+};
+
+const leftMarginButton = {
+  width: '80px',
+  marginLeft: "10px"
+};
 
 export var oUser: OUserData;
 
@@ -53,7 +76,7 @@ export var oUser: OUserData;
 //   refPassword: any;
  };
 
-const Charts =  (props: any) => <Link to="/charts" {...props} />
+//const Charts =  (props: any) => <Link to="/charts" {...props} />
 let asUserEmail: string[];
 let sUserToRemove: any;
 
@@ -73,12 +96,12 @@ class App extends React.Component<RouteComponentProps, AppState> {
       iUserList: 0,
       bUserChosen: false,
       bAddUser: false,
-      bChangePasswordButton: false
+      bChangePasswordButton: false,
 //      refEmail: React.createRef(),
 //      refPassword: React.createRef()
     }
   }
-  
+
   loginFormSubmit = async (event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 //    let sQuery: any = this.state.refEmail;
@@ -149,12 +172,13 @@ class App extends React.Component<RouteComponentProps, AppState> {
 //              <form onSubmit={this.removeUsersButton}>
 //                <input type='submit'>Remove user</input>
 //              </form>
-  addUserButton: any = async (thisParam: any) => {
-    this.setState ({bAddUser: true});
-  }
-
   changePasswordButton: any = async (thisParam: any) => {
     this.setState ({bChangePasswordButton: true});
+  }
+
+  // --------------------- USER ----------------------------------
+    addUserButton: any = async (thisParam: any) => {
+    this.setState ({bAddUser: true});
   }
 
   addUserSubmit = async (event:React.FormEvent<HTMLFormElement>) => {
@@ -214,24 +238,23 @@ class App extends React.Component<RouteComponentProps, AppState> {
         this.setState ({bUserChosen: false, iUserList: 2});   // 2 means redraw
         return true;
       }
-
   }
 
   presentUsers(state: any) {
-        return (
-            <div style={{ textAlign: 'center', margin: '0 20px' }}>
-                <strong>
-                    {<div><h3 style={headingStyle}>Remove user:</h3><br />
-                     <select size={10} multiple={false}
-                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.ChooseUser(e)}>
-                                    {asUserEmail.map((value2, index2) => <option key = {index2}> {value2} </option>)}
-                    </select></div>
-                    }
-                    <br></br>
-                </strong>
-              <div>{this.state.bUserChosen ? <button onClick={() => this.removeUser(this)}>Remove</button> : ''}</div>
-            </div>
-        )
+    return (
+      <div style={{ textAlign: 'center', margin: '0 20px' }}>
+        <strong>
+          {<div><h3 style={headingStyle}>Remove user:</h3><br />
+            <select size={10} multiple={false}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => this.ChooseUser(e)}>
+              {asUserEmail.map((value2, index2) => <option key={index2}> {value2} </option>)}
+            </select></div>
+          }
+          <br></br>
+        </strong>
+        <div>{this.state.bUserChosen ? <button onClick={() => this.removeUser(this)}>Remove</button> : ''}</div>
+      </div>
+    )
     };
 
   ChooseUser = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -242,17 +265,37 @@ class App extends React.Component<RouteComponentProps, AppState> {
   }
 
 
+  refreshPage: any = ()=> {
+    console.log ('Refreshing page');
+      this.setState ({
+      error: '',
+      bLoggedIn: true,
+      bChangedPassword: false,
+      bSuperUser: false,
+      iUserList: 0,
+      bUserChosen: false,
+      bAddUser: false,
+      bChangePasswordButton: false
+//      refEmail: React.createRef(),
+//      refPassword: React.createRef()
+    });
+
+//    window.location.reload ();
+  }
+
   public render() {
     return (
       <div>
         <title>Optimus</title>
         <meta name="description" content="" />
         <h1>Optimus</h1>
-        <div id='w3'>
+        <div style={leftMargin}>
           <div id='signin-form profile'>
             <div>{!this.state.bLoggedIn ?
+            <div>
+              <h2 style={h2Style}>Login</h2>
               <form onSubmit={this.loginFormSubmit}>
-              <h3 style={headingStyle}>Login</h3>
+                <br />
                 <div id='label-style'>E-mail: </div>
                 <input style={inputStyle} type="text" name="logemail" ref="refEmail" placeholder="E-mail" required={true}></input>
                 <br />
@@ -262,23 +305,32 @@ class App extends React.Component<RouteComponentProps, AppState> {
                 <div id='tp'>
                   <input style={buttonStyle} type="submit" value="Login"></input>
                 </div>
-              </form>
+              </form></div>
               : ''}
             </div>
-            <div>{this.state.bLoggedIn && !this.state.bChangedPassword && this.state.bChangePasswordButton && this.state.iUserList === 0?
-              <form onSubmit={this.changePassword}>
-                <h3 style={headingStyle}>Change password:</h3>
-                <div>
-                  <div id='label-style'>New password:</div>
-                  <input type="password" name='newPass1' ref='refNewPass1' placeholder='New password' required={true}></input>
-                  <div id='label-style'>Confirm:</div>
-                  <input type="password" name='newPass2' ref='refNewPass2' placeholder='Confirm' required={true}></input>
-                  <input type='submit'></input>
-                </div>
-              </form>
-              : ''}
-            </div>
-            <div>{this.state.bLoggedIn && !this.state.bAddUser && !this.state.bChangePasswordButton && this.state.iUserList === 0 ?
+            <Container>
+              <Row>
+                <Col sm={3} md={2} lg={2}>
+                  <div>{this.state.bLoggedIn && !this.state.bChangedPassword &&
+                    this.state.bChangePasswordButton && this.state.iUserList === 0 ?
+                    <form onSubmit={this.changePassword}>
+                      <h2 style={h2Style}>Change password:</h2>
+                      <br />
+                      <div>
+                        <div id='label-style'>New password:</div>
+                        <input type="password" name='newPass1' ref='refNewPass1' placeholder='New password' required={true}></input>
+                        <div id='label-style'>Confirm:</div>
+                        <input type="password" name='newPass2' ref='refNewPass2' placeholder='Confirm' required={true}></input>
+                        <input type='submit'></input>
+                      </div>
+                    </form>
+                    : ''}
+                  </div>
+                </Col>
+              </Row>
+            </Container>
+            <div>{this.state.bLoggedIn && !this.state.bAddUser &&
+             !this.state.bChangePasswordButton && this.state.iUserList === 0 ?
               <div><button onClick={() => this.changePasswordButton(this)}>Change password</button>
               </div>
               : ''}
@@ -289,6 +341,7 @@ class App extends React.Component<RouteComponentProps, AppState> {
               : ''}</div>
             <div>{this.state.bAddUser ?
               <form onSubmit={this.addUserSubmit}>
+              <h2 style={headingStyle}>Add user:</h2>
                 <div id='label-style'>E-mail:</div>
                 <input type="text" name="logemail" ref="refEmailAdd" placeholder="E-mail" required={true}></input>
                 <div id='label-style'>Location:</div>
@@ -301,8 +354,20 @@ class App extends React.Component<RouteComponentProps, AppState> {
               </form>
               : ''}
             </div>
+            <br />
             <div>{this.state.bLoggedIn ?
-              <Button component={Charts} variant='contained'>Charts</Button>
+              <div>
+                <LinkContainer to="/charts">
+                  <Button>Charts</Button>
+                </LinkContainer>
+                <LinkContainer to="/prices">
+                  <Button>Bio prices</Button>
+                </LinkContainer>
+                {'   '}
+                {this.state.iUserList > 0 || this.state.bChangePasswordButton ?
+                    <Button onClick={() => this.refreshPage()}>Back</Button>
+                 : ''}
+              </div>
               : ''}
             </div>
           </div>
@@ -313,5 +378,10 @@ class App extends React.Component<RouteComponentProps, AppState> {
   }
 }
 
+              // <div>{this.state.bLoggedIn && !this.state.bSuperUser && this.state.iPriceList === 0 ?
+              // <div><button onClick={() => this.bioPricesButton(this)}>Bio prices</button></div>
+              // : ''}</div>
 
+
+//               <Button component={Charts} variant='contained'>Charts</Button>
 export default App;
